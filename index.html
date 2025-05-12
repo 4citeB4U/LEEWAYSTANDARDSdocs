@@ -1,0 +1,2274 @@
+
+```html
+<!DOCTYPE html>
+<html lang="en" class="dark"> <!-- Default to dark mode -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEEWAY Standard: Interactive Documentation with Agent Lee</title>
+    <meta name="description" content="Interactive and comprehensive documentation for the LEEWAY Standard, featuring Agent Lee for guided assistance. Explore principles, components, and code artifacts in a single, AI-ready file.">
+
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.2/babel.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- 🟡 START: THEME - Main Page & Documentation Styles -->
+    <style>
+        :root {
+          /* LEEWAY Standard Documentation Theme (Blue/Professional Focus) */
+          --bg-color: #0A192F; /* Deep Navy Blue */
+          --text-color: #CCD6F6; /* Light Slate Blue/Grey */
+          --card-bg-color: #112240; /* Slightly Lighter Navy */
+          --highlight-color: #64FFDA; /* Bright Aqua/Teal - LEEWAY Accent */
+          --nav-bg-color: #0A192F; 
+          --sidebar-bg-color: #0A192F;
+          --sidebar-link-color: #8892B0; /* Slate Grey */
+          --sidebar-link-hover-bg: rgba(100, 255, 218, 0.1); 
+          --sidebar-link-active-bg: var(--highlight-color);
+          --sidebar-link-active-color: #0A192F; /* Dark on highlight */
+          --table-border-color: #233554; /* Darker Border */
+          --code-bg-color: #011627; 
+          --code-text-color: #d6deeb;
+          --header-height: 60px;
+
+          /* LEEWAY Colorization variables for documentation text */
+          --leeway-comment-color: #8892B0;
+          --leeway-comment-green-color: #64FFDA; 
+          --leeway-comment-blue-color: #80DFFF; 
+          --leeway-comment-yellow-color: #FFD700; 
+          --leeway-comment-orange-color: #FFAB70; 
+          --leeway-comment-red-color: #FF7B72; 
+          --leeway-comment-purple-color: #D896FF;
+        }
+
+        .light-mode {
+          --bg-color: #f0f8ff; 
+          --text-color: #2c3e50; 
+          --card-bg-color: #ffffff; 
+          --highlight-color: #007acc; 
+          --nav-bg-color: #e6f3ff; 
+          --sidebar-bg-color: #e6f3ff;
+          --sidebar-link-color: #34495e; 
+          --sidebar-link-hover-bg: #cce7ff;
+          --sidebar-link-active-bg: var(--highlight-color);
+          --sidebar-link-active-color: #fff;
+          --table-border-color: #bdc3c7; 
+          --code-bg-color: #f0f0f0; 
+          --code-text-color: #2d2d2d; 
+
+          --leeway-comment-color: #555;
+          --leeway-comment-green-color: #28a745;
+          --leeway-comment-blue-color: #007bff;
+          --leeway-comment-yellow-color: #ffc107;
+          --leeway-comment-orange-color: #fd7e14;
+          --leeway-comment-red-color: #dc3545;
+          --leeway-comment-purple-color: #6f42c1;
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+          background-color: var(--bg-color);
+          color: var(--text-color);
+          transition: background-color 0.3s ease, color 0.3s ease;
+          margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; line-height: 1.6;
+        }
+        
+        nav.main-nav {
+            position: fixed; top: 0; left: 280px; right: 0; height: var(--header-height);
+            z-index: 100; background-color: var(--nav-bg-color);
+            transition: background-color 0.3s ease, margin-left 0.3s ease; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); border-bottom: 1px solid var(--table-border-color);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 2rem;
+        }
+        .main-nav-title { font-size: 1.25rem; color: var(--highlight-color); font-weight: 600; }
+
+        .leeway-sidebar {
+            width: 280px; flex-shrink: 0; background-color: var(--sidebar-bg-color);
+            color: var(--sidebar-link-color); padding: 1rem; padding-top: 1rem; height: 100vh;
+            overflow-y: auto; position: fixed; top:0; left:0;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+            z-index: 150; border-right: 1px solid var(--table-border-color);
+        }
+        .sidebar-header { text-align:center; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--table-border-color); }
+        .sidebar-title { font-family: 'Roboto Slab', serif; font-size: 1.8em; color: var(--highlight-color); font-weight: 700;}
+        .sidebar-version { font-size: 0.9em; color: var(--text-color); opacity: 0.7;}
+        .sidebar-nav .nav-section { margin-bottom: 20px; }
+        .sidebar-nav .nav-section-title { font-weight: bold; margin-top:1rem; margin-bottom: 10px; color: var(--text-color); opacity:0.9; text-transform: uppercase; font-size: 0.85rem; padding-top:0.75rem; border-top: 1px solid var(--table-border-color); }
+        .sidebar-nav .nav-section:first-child .nav-section-title { border-top: none; padding-top:0;}
+        .sidebar-nav .nav-items { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav .nav-item { margin-bottom: 5px; }
+        .sidebar-nav .nav-link { display: block; padding: 8px 10px; color: var(--sidebar-link-color); text-decoration: none; border-radius: 4px; transition: background-color 0.15s ease, color 0.15s ease; font-size:0.85rem; margin-bottom: 0.1rem;}
+        .sidebar-nav .nav-link:hover { background-color: var(--sidebar-link-hover-bg); color: var(--highlight-color); }
+        .sidebar-nav .nav-link.active { background-color: var(--sidebar-link-active-bg); color: var(--sidebar-link-active-color); font-weight: bold; }
+
+        .leeway-main-content {
+            flex-grow: 1; padding: 1rem 2rem; 
+            padding-top: calc(var(--header-height) + 1rem); 
+            margin-left: 280px; height: 100vh; overflow-y: auto; 
+            transition: margin-left 0.3s ease;
+        }
+        
+        .page-section {
+            padding: 2rem 1rem; margin-bottom: 3rem;
+            animation: fadeInDocs 0.5s ease-out;
+            display: none; /* JS shows active */
+        }
+        .page-section.active { display: block; }
+        @keyframes fadeInDocs { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .page-section .doc-content h1 {
+            font-family: 'Roboto Slab', serif; color: var(--highlight-color); 
+            margin-bottom: 20px; border-bottom: 1px solid var(--table-border-color);
+            padding-bottom: 10px; font-size: 2rem; 
+         }
+        .page-section .doc-content h2 {
+            font-family: 'Roboto Slab', serif; color: var(--highlight-color);
+            margin-top: 30px; border-left: 5px solid var(--highlight-color);
+            padding-left: 10px; margin-bottom: 15px; font-size: 1.75rem;
+        }
+        .page-section .doc-content h3, .page-section h3.content-heading {
+            font-family: 'Roboto Slab', serif; margin-top: 20px;
+            color: var(--highlight-color); opacity: 0.95;
+            margin-bottom: 10px; font-size: 1.35rem; font-weight: 600;
+        }
+        .page-section p { margin-bottom: 15px; color: var(--text-color); }
+        .page-section ul, .page-section ol { margin-left: 20px; margin-bottom: 15px; color: var(--text-color); }
+        .page-section li { margin-bottom: 8px; }
+        
+        pre {
+            background: var(--code-bg-color); color: var(--code-text-color);
+            padding: 1rem; border-radius: 6px; overflow-x: auto; margin-bottom: 1.5rem;
+            white-space: pre-wrap; word-break: break-all; 
+            border: 1px solid var(--table-border-color);
+            font-family: 'Fira Code', 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 0.9em; line-height: 1.6; position: relative;
+            padding-left: 55px; counter-reset: leeway-line;
+        }
+        pre code { background: none; color: inherit; padding: 0; border-radius: 0; display: block; }
+        
+         pre::before { /* Gutter for line numbers */
+            content: ""; display: block;
+            position: absolute; left: 0; top: 0; bottom: 0; width: 45px;
+            padding: 1rem 5px 1rem 10px; 
+            background-color: color-mix(in srgb, var(--code-bg-color) 85%, black);
+            border-right: 1px solid var(--table-border-color);
+            box-sizing: border-box;
+         }
+         /* Basic line numbering (for non-wrapped lines primarily). JS needed for robust wrapped lines. */
+         /* This part is tricky with pure CSS for wrapped lines. Will rely on JS or manual span per line for perfect. */
+         /* For now, this creates the gutter. Actual numbers will be added via JS if needed for perfection. */
+
+
+        code:not(pre > code) { 
+            font-family: 'Fira Code', monospace; background-color: rgba(100,255,218,0.1); 
+            color: var(--highlight-color); padding: 0.2em 0.4em; 
+            border-radius: 3px; font-size: 0.85em; 
+        }
+
+        .leeway-comment { color: var(--leeway-comment-color) !important; } 
+        .leeway-comment-green { color: var(--leeway-comment-green-color) !important; font-weight: bold; } 
+        .leeway-comment-blue { color: var(--leeway-comment-blue-color) !important; font-weight: bold; } 
+        .leeway-comment-yellow { color: var(--leeway-comment-yellow-color) !important; font-weight: bold; } 
+        .leeway-comment-orange { color: var(--leeway-comment-orange-color) !important; font-weight: bold; } 
+        .leeway-comment-red { color: var(--leeway-comment-red-color) !important; font-weight: bold; } 
+        .leeway-comment-purple { color: var(--leeway-comment-purple-color) !important; font-weight: bold; } 
+        .leeway-region { display: block; margin: 0; padding: 0; border: none; }
+        .leeway-code-green { border-left: 4px solid var(--leeway-comment-green-color); }
+        .leeway-code-blue { border-left: 4px solid var(--leeway-comment-blue-color); }
+        .leeway-code-yellow { border-left: 4px solid var(--leeway-comment-yellow-color); }
+        .leeway-code-orange { border-left: 4px solid var(--leeway-comment-orange-color); }
+        .leeway-code-red { border-left: 4px solid var(--leeway-comment-red-color); }
+        .leeway-code-purple { border-left: 4px solid var(--leeway-comment-purple-color); }
+
+        /* Simulated Syntax Highlighting */
+        .js-comment, .ps-comment { color: #6a9955; } /* Prefer over leeway-comment for syntax if both apply */
+        .js-keyword, .ps-keyword { color: #569cd6; font-weight: bold; }
+        .js-string, .ps-string, .json-string { color: #ce9178; }
+        .js-variable, .ps-variable, .json-key { color: #9cdcb7; }
+        .js-function { color: #dcdcaa; } .ps-command { color: #c586c0; }
+        .js-object { color: #4ec9b0; } .ps-param { color: #d7ba7d; }
+        .js-number, .ps-number, .json-number { color: #b5cea8; }
+        .js-operator, .ps-operator { color: var(--code-text-color); opacity: 0.8; }
+        .js-paren, .js-bracket, .js-brace, .ps-paren, .ps-bracket, .ps-brace, .json-brace-bracket { color: #ffd700; }
+        .json-boolean, .json-null { color: #569cd6; } .json-colon { color: var(--code-text-color); opacity: 0.8; }
+        .md-heading { color: var(--highlight-color); font-weight: bold; } .md-bold { font-weight: bold; }
+        .md-italic { font-style: italic; } .md-link { color: #4ec9b0; text-decoration: underline; }
+        .md-list-item { color: var(--text-color); } 
+        .md-code { font-family: 'Fira Code', monospace; background-color: rgba(100,255,218,0.05); padding: 1px 3px; border-radius: 3px; color: #d16969; }
+
+        .callout { padding: 1rem; margin: 1.5rem 0; border-radius: 4px; border-left-width: 5px; border-left-style: solid; background-color: var(--card-bg-color); border-color: var(--highlight-color); color: var(--text-color); }
+        .callout-title { font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center; color: var(--highlight-color) }
+        .callout-title .fas, .callout-title .bi { margin-right: 0.5rem; }
+        .callout-info { border-left-color: #17a2b8; background-color: color-mix(in srgb, var(--card-bg-color) 90%, #17a2b8 10%);}
+        .callout-warning { border-left-color: #ffc107; background-color: color-mix(in srgb, var(--card-bg-color) 90%, #ffc107 10%); }
+
+        .visual-placeholder { border: 1px dashed var(--table-border-color); padding: 1rem; text-align: center; margin: 1.5rem 0; background-color: var(--card-bg-color); font-style: italic; color: var(--sidebar-link-color); border-radius: 4px;}
+        .visual-placeholder::before { content: 'Visual Placeholder: '; font-weight: bold; color: var(--sidebar-link-color); }
+
+        .principles-grid, .mcp-grid { display: grid; gap: 20px; margin: 20px 0; }
+        .principles-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+        .mcp-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+        .card, .principle-card, .mcp-card, .faq-item {
+            background: var(--card-bg-color); padding: 1.25rem; 
+            border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); 
+            border-top: 3px solid var(--highlight-color); color: var(--text-color);
+        }
+        .card h3, .principle-card h3, .mcp-card h3 {
+             font-size: 1.1rem; color: var(--highlight-color);
+             margin-bottom: 0.75rem; font-weight: 600;
+        }
+        .principle-card .principle-icon { font-size: 2em; margin-bottom: 10px; text-align: center; color: var(--highlight-color); }
+
+        #theme-toggle { position: fixed; top: 15px; right: 20px; background-color: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--highlight-color); padding: 6px 10px; border-radius: 50%; cursor: pointer; z-index: 1050; font-size: 1.25rem; line-height: 1; box-shadow: 0 2px 10px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        #theme-toggle:hover { transform: scale(1.1); }
+        
+        #agent-lee-interactive-container {
+            position: fixed; bottom: 20px; right: 20px; width: 380px; height: 70vh; max-height: 550px;
+            background-color: var(--card-bg-color); color: var(--text-color);
+            border: 1px solid var(--highlight-color); border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.25); display: flex; flex-direction: column;
+            z-index: 1000; transition: all 0.3s ease-in-out;
+            transform: translateY(100%) translateY(20px); opacity: 0;
+        }
+        #agent-lee-interactive-container.visible { transform: translateY(0); opacity: 1; }
+        #agent-lee-interactive-container .app-header {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--highlight-color) 80%, black) , color-mix(in srgb, var(--highlight-color) 50%, #005f85));
+            border-top-left-radius: 10px; border-top-right-radius: 10px;
+            padding: 0.5rem 1rem; height: 50px; display: flex; align-items: center;
+        }
+         #agent-lee-interactive-container .header-brand { display: flex; align-items: center; }
+         #agent-lee-interactive-container .agent-avatar { width: 2.25rem; height: 2.25rem; border: 1px solid var(--highlight-color); border-radius: 50%; margin-right: 0.75rem; object-fit: cover; }
+         #agent-lee-interactive-container .app-main { height: calc(100% - 50px); display: flex; flex-direction: column; }
+         #agent-lee-interactive-container .conversation-panel { flex-grow: 1; overflow-y: auto; padding: 0.75rem; }
+         #agent-lee-interactive-container .messages-container { display: flex; flex-direction: column; gap: 0.75rem; padding-right: 0.25rem; }
+         #agent-lee-interactive-container .message { display: flex; flex-direction: column; max-width: 90%; }
+         #agent-lee-interactive-container .user-message { align-self: flex-end; }
+         #agent-lee-interactive-container .agent-message { align-self: flex-start; }
+         #agent-lee-interactive-container .message-header { font-size: 0.7rem; color: var(--sidebar-link-color); margin-bottom: 0.2rem; display: flex; justify-content: space-between; }
+         #agent-lee-interactive-container .user-message .message-header { flex-direction: row-reverse; }
+         #agent-lee-interactive-container .message-content { 
+             padding: 0.6rem 0.9rem; font-size: 0.85rem; 
+             border-radius: 10px; line-height: 1.5; word-wrap: break-word;
+         }
+         #agent-lee-interactive-container .user-message .message-content {
+             background-color: var(--highlight-color); color: var(--sidebar-link-active-color); 
+             border-top-right-radius: 0;
+         }
+         #agent-lee-interactive-container .agent-message .message-content {
+             background-color: var(--code-bg-color); color: var(--code-text-color);
+             border: 1px solid var(--table-border-color); border-top-left-radius: 0;
+         }
+        #agent-lee-interactive-container .agent-message .message-content pre {
+            margin: 0.5em 0; padding: 0.5em; font-size: 0.9em; 
+            border-left: 3px solid var(--highlight-color);
+            background-color: var(--bg-color);
+            padding-left: 1em; /* Indent from number gutter */
+        }
+        #agent-lee-interactive-container .agent-message .message-content ul { margin-left: 1.2em; padding-left: 0.5em;}
+        #agent-lee-interactive-container .agent-message .message-content li { margin-bottom: 0.3em;}
+        #agent-lee-interactive-container .agent-message .message-content a { color: var(--highlight-color); text-decoration: underline;}
+
+         #agent-lee-interactive-container .input-panel { padding: 0.75rem; border-top: 1px solid var(--table-border-color); }
+         #agent-lee-interactive-container .message-input { 
+             width: 100%; background-color: var(--bg-color); 
+             color: var(--text-color); border: 1px solid var(--table-border-color); 
+             border-radius: 6px; padding: 0.6rem 0.8rem; 
+             font-size:0.85rem; resize: none; transition: border-color 0.2s;
+         }
+         #agent-lee-interactive-container .message-input:focus { border-color: var(--highlight-color); outline: none; }
+         #agent-lee-interactive-container .input-container { display: flex; gap: 0.5rem; align-items: center; }
+         #agent-lee-interactive-container .btn-primary { 
+             background-color: var(--highlight-color); color: var(--sidebar-link-active-color);
+             border:none; padding: 0.5rem 1rem; border-radius:6px; font-size:0.85rem; cursor:pointer; transition: opacity 0.2s;
+         }
+         #agent-lee-interactive-container .btn-primary:hover { opacity: 0.85; }
+
+        #doc-search-input {
+            padding: 8px 12px; border: 1px solid var(--table-border-color);
+            border-radius: 4px; background-color: var(--card-bg-color);
+            color: var(--text-color); font-size: 0.9rem; margin-bottom: 1rem; 
+            width: calc(100% - 4rem); max-width: 600px; 
+            display: block; margin-left: auto; margin-right: auto;
+        }
+        #doc-search-input:focus {
+            outline: none; border-color: var(--highlight-color);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--highlight-color) 30%, transparent);
+        }
+        #doc-search-results { margin-top: 1rem; border-top: 1px solid var(--table-border-color); padding-top: 1rem; }
+        #doc-search-results ul { list-style: none; padding: 0; }
+        #doc-search-results li {
+            margin-bottom: 1rem; padding: 0.75rem; background-color: var(--card-bg-color);
+            border: 1px solid var(--table-border-color); border-left: 3px solid var(--highlight-color);
+            border-radius: 4px;
+        }
+        #doc-search-results li a {
+            text-decoration: none; color: var(--highlight-color);
+            font-weight: bold; display: block; margin-bottom: 0.25rem;
+        }
+        #doc-search-results li p { font-size: 0.85em; color: var(--sidebar-link-color); margin:0; }
+
+    </style>
+    <!-- 🟡 END: THEME - Main Page & Documentation Styles -->
+
+    <!-- 🔴 START: SEO - Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Full LEEWAY Standard Documentation and Artifacts with Agent Lee",
+        "description": "A single-file comprehensive guide to the LEEWAY Standard, including principles, components, implementation details, and key code examples, with an interactive AI assistant.",
+        "author": { "@type": "Organization", "name": "LEEWAY Standard Organization" },
+        "publisher": {
+            "@type": "Organization", "name": "LEEWAY Standard Organization",
+            "logo": { "@type": "ImageObject", "url": "C:/Users/Agent Lee/.vscode/.leeway/leeway-logo.png" }
+        },
+        "datePublished": "2023-04-28", "dateModified": "2024-05-23"
+    }
+    </script>
+    <!-- 🔴 END: SEO - Structured Data -->
+</head>
+<body>
+    <button id="theme-toggle" title="Toggle light/dark mode">🌓</button>
+
+    <!-- 🔵 START: UI - Main Navigation Header -->
+    <nav class="main-nav">
+        <div class="main-nav-title">LEEWAY™ Standard Documentation</div>
+        <div>
+            <a href="nextplan.html" class="nav-link" style="color: var(--sidebar-link-color); font-size:0.9rem; padding: 0.5rem 1rem; border: 1px solid var(--button-border-color); border-radius:0.25rem;" title="Back to Investor Deck">
+                <i class="fas fa-arrow-left mr-2"></i>Investor Deck
+            </a>
+        </div>
+    </nav>
+    <!-- 🔵 END: UI - Main Navigation Header -->
+
+    <!-- 🔵 START: UI - Sidebar -->
+    <aside class="leeway-sidebar">
+        <div class="sidebar-header">
+            <h1 class="sidebar-title">LEEWAY</h1>
+            <div class="sidebar-version">Version 1.0</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Getting Started</div>
+                <ul class="nav-items">
+                    <li class="nav-item"><a href="#introduction-section" class="nav-link active" onclick="navigateToSection('introduction-section', this)">Introduction</a></li>
+                    <li class="nav-item"><a href="#overview-section" class="nav-link" onclick="navigateToSection('overview-section', this)">Overview</a></li>
+                    <li class="nav-item"><a href="#quickstart-guide" class="nav-link" onclick="navigateToSection('quickstart-guide', this)">Quick Start</a></li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Core Principles</div>
+                <ul class="nav-items">
+                    <li class="nav-item"><a href="#core-principles-intro" class="nav-link" onclick="navigateToSection('core-principles-intro', this)">Principles Overview</a></li>
+                    <li class="nav-item"><a href="#core-principles-modularization" class="nav-link" onclick="navigateToSection('core-principles-modularization', this)">Modularization</a></li>
+                    <li class="nav-item"><a href="#core-principles-colorization" class="nav-link" onclick="navigateToSection('core-principles-colorization', this)">Colorization</a></li>
+                    <li class="nav-item"><a href="#core-principles-semantic-tagging" class="nav-link" onclick="navigateToSection('core-principles-semantic-tagging', this)">Semantic Tagging</a></li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">MCP Components</div>
+                <ul class="nav-items">
+                    <li class="nav-item"><a href="#mcp-components-intro" class="nav-link" onclick="navigateToSection('mcp-components-intro', this)">MCP Overview</a></li>
+                    <li class="nav-item"><a href="#mcp-components-memory" class="nav-link" onclick="navigateToSection('mcp-components-memory', this)">Memory</a></li>
+                    <li class="nav-item"><a href="#mcp-components-communication" class="nav-link" onclick="navigateToSection('mcp-components-communication', this)">Communication</a></li>
+                    <li class="nav-item"><a href="#mcp-components-processing" class="nav-link" onclick="navigateToSection('mcp-components-processing', this)">Processing</a></li>
+                    <li class="nav-item"><a href="#mcp-components-search" class="nav-link" onclick="navigateToSection('mcp-components-search', this)">Search</a></li>
+                    <li class="nav-item"><a href="#mcp-components-scheduling" class="nav-link" onclick="navigateToSection('mcp-components-scheduling', this)">Scheduling</a></li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Implementation</div>
+                <ul class="nav-items">
+                    <li class="nav-item"><a href="#implementation-process-intro" class="nav-link" onclick="navigateToSection('implementation-process-intro', this)">Process Overview</a></li>
+                    <li class="nav-item"><a href="#implementation-process-error-handling" class="nav-link" onclick="navigateToSection('implementation-process-error-handling', this)">Error Handling</a></li>
+                    <li class="nav-item"><a href="#implementation-process-seo-enhancements" class="nav-link" onclick="navigateToSection('implementation-process-seo-enhancements', this)">SEO Enhancements</a></li>
+                    <li class="nav-item"><a href="#implementation-process-file-embedding" class="nav-link" onclick="navigateToSection('implementation-process-file-embedding', this)">File Embedding</a></li>
+                    <li class="nav-item"><a href="#implementation-process-optimization" class="nav-link" onclick="navigateToSection('implementation-process-optimization', this)">Optimization</a></li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Advanced Topics</div>
+                <ul class="nav-items">
+                    <li class="nav-item"><a href="#advanced-topics-intro" class="nav-link" onclick="navigateToSection('advanced-topics-intro', this)">Advanced Overview</a></li>
+                    <li class="nav-item"><a href="#advanced-topics-self-repair" class="nav-link" onclick="navigateToSection('advanced-topics-self-repair', this)">Self-Repair Hooks</a></li>
+                    <li class="nav-item"><a href="#advanced-topics-logging-standards" class="nav-link" onclick="navigateToSection('advanced-topics-logging-standards', this)">Logging Standards</a></li>
+                    <li class="nav-item"><a href="#advanced-topics-in-code-documentation" class="nav-link" onclick="navigateToSection('advanced-topics-in-code-documentation', this)">In-Code Documentation</a></li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Artifacts</div>
+                <ul class="nav-items">
+                    <li class="nav-item"><a href="#artifact-tool-handlers-ps1" class="nav-link" onclick="navigateToSection('artifact-tool-handlers-ps1', this)">Tool Handler (PS)</a></li>
+                    <li class="nav-item"><a href="#artifact-tool-handlers-js" class="nav-link" onclick="navigateToSection('artifact-tool-handlers-js', this)">Tool Handler (JS)</a></li>
+                    <li class="nav-item"><a href="#artifact-leeway-protocol-json" class="nav-link" onclick="navigateToSection('artifact-leeway-protocol-json', this)">Protocol (JSON)</a></li>
+                    <li class="nav-item"><a href="#artifact-vscode-extension-package-json" class="nav-link" onclick="navigateToSection('artifact-vscode-extension-package-json', this)">VSCode Ext (package)</a></li>
+                    <li class="nav-item"><a href="#artifact-vscode-extension-extension-js" class="nav-link" onclick="navigateToSection('artifact-vscode-extension-extension-js', this)">VSCode Ext (JS)</a></li>
+                    <li class="nav-item"><a href="#artifact-vscode-extension-styles-css" class="nav-link" onclick="navigateToSection('artifact-vscode-extension-styles-css', this)">VSCode Ext (CSS)</a></li>
+                    <li class="nav-item"><a href="#artifact-vscode-extension-readme-md" class="nav-link" onclick="navigateToSection('artifact-vscode-extension-readme-md', this)">VSCode Ext (README)</a></li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Resources</div>
+                <ul class="nav-items">
+                    <li class="nav-item"><a href="#resources-examples" class="nav-link" onclick="navigateToSection('resources-examples', this)">Code Examples</a></li>
+                    <li class="nav-item"><a href="#resources-templates" class="nav-link" onclick="navigateToSection('resources-templates', this)">Templates</a></li>
+                    <li class="nav-item"><a href="#resources-faq" class="nav-link" onclick="navigateToSection('resources-faq', this)">FAQ</a></li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+    <!-- 🔵 END: UI - Sidebar -->
+
+    <!-- 🔵 START: UI - Main Content Area -->
+    <main class="leeway-main-content">
+            <input type="text" id="doc-search-input" placeholder="Search LEEWAY documentation...">
+            <div id="doc-search-results" style="display: none;"></div>
+
+            <section id="introduction-section" class="page-section active">
+                <!-- Outer title for this specific page view -->
+                <h1 class="section-title">LEEWAY System: Introduction</h1>
+                <!-- Content from leewaystandard.txt.html wrapped in .doc-content -->
+                <div class="doc-content">
+                    <h1>LEEWAY System: Full Documentation &amp; Artifacts</h1>
+                    <p>Welcome to the comprehensive documentation for the LEEWAY™ system. This single HTML file contains the full description of the LEEWAY Standard, its principles, components, implementation details, advanced topics, and key code artifacts discussed during its development. It embodies the LEEWAY principle of File Embedding, providing a self-contained resource for understanding and implementing the standard.</p>
+                     <div class="callout callout-info">
+                        <div class="callout-title"><i class="fas fa-info-circle"></i> What&apos;s Inside</div>
+                        <p>This interactive document includes:</p>
+                        <ul>
+                            <li>Detailed explanations of LEEWAY principles and components.</li>
+                            <li>Practical guidance on implementation techniques (Error Handling, SEO, Optimization, File Embedding).</li>
+                            <li>Advanced concepts like Self-Repair Hooks, Logging, and In-Code Documentation.</li>
+                            <li>Full source code examples for key artifacts like tool handlers, the protocol JSON, and the VS Code extension files.</li>
+                        </ul>
+                         <p>Use the navigation sidebar to jump between sections, or ask Agent Lee for assistance!</p>
+                    </div>
+                    <p>The LEEWAY Standard is designed to create web applications that are not only powerful and feature-rich but also transparent, maintainable, and inherently understandable by both human developers and advanced AI agents. This document serves as your guide to mastering this paradigm.</p>
+                </div>
+            </section>
+
+            <section id="overview-section" class="page-section">
+                 <h1 class="section-title">Overview - LEEWAY Standard</h1>
+                <div class="doc-content">
+                    <!-- 🟢 START: Core - Introduction -->
+                    <div id="overview-intro-doc" class="leeway-region region-core" data-region-label="🟢 Core: Introduction">
+                        <h2>Overview - LEEWAY Standard</h2>
+                        <p>The LEEWAY Standard is a comprehensive framework for building modular, colorized, and AI-ready web applications. It provides a structured approach to web development that emphasizes organization, maintainability, and future-proofing.</p>
+                        <p>LEEWAY stands for <strong>L</strong>ogically <strong>E</strong>nhanced <strong>W</strong>eb <strong>E</strong>ngineering <strong>A</strong>rchitecture <strong>Y</strong>ield, reflecting its goal of producing high-quality, well-structured web applications that are both human and AI-friendly.</p>
+                        <div class="callout callout-info">
+                            <div class="callout-title"><i class="fas fa-lightbulb"></i> LEEWAY at a Glance</div>
+                            <p>LEEWAY is not just a coding standard but a comprehensive approach to web development that addresses structure, styling, functionality, SEO, error handling, and documentation in a unified framework.</p>
+                        </div>
+                         <h3 class="content-heading">The Single-File Philosophy</h3>
+                         <p>At its heart, LEEWAY champions the power and simplicity of a single HTML file. This approach offers:
+                             <ul>
+                                <li><strong>Zero Build Complexity:</strong> Write code directly in the HTML file. No Webpack, Parcel, or other bundlers are strictly necessary for core functionality.</li>
+                                <li><strong>Ultimate Portability:</strong> The entire application is one file, easily shared, hosted, and versioned.</li>
+                                <li><strong>Atomic Deployments:</strong> Updating the application can be as simple as replacing a single file.</li>
+                                <li><strong>Reduced Cognitive Load:</strong> Developers focus on one coherent codebase rather than managing hundreds of interlinked files and complex build configurations for the primary application structure.</li>
+                             </ul>
+                         </p>
+                         <p>This is made manageable and powerful through strict adherence to Modularization, Colorization, and Semantic Tagging, which prevent the single file from becoming a monolith of spaghetti code.</p>
+                    </div>
+                    <!-- 🟢 END: Core - Introduction -->
+                 </div>
+             </section>
+
+            <section id="core-principles-intro" class="page-section">
+                 <h1 class="section-title">Core Principles of LEEWAY</h1>
+                <div class="doc-content">
+                    <!-- 🟢 START: Core - Key Principles -->
+                    <div id="core-principles-key-doc" class="leeway-region region-core" data-region-label="🟢 Core: Key Principles">
+                        <h2>Core Principles</h2>
+                        <p>The LEEWAY Standard is built on several key principles that guide its implementation:</p>
+                        <div class="principles-grid">
+                            <div class="principle-card">
+                                <div class="principle-icon">🧩</div>
+                                <h3>Modularization</h3>
+                                <p>Every logical block (function, controller, UI component, SEO section) must be isolated into a distinct labeled region.</p>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-icon">🎨</div>
+                                <h3>Colorization</h3>
+                                <p>Color-coding is used to visually distinguish different types of components, making the code more readable and navigable.</p>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-icon">🧠</div>
+                                <h3>Semantic Tagging</h3>
+                                <p>Every section, div, and major content block must have a unique, semantically named ID for better navigation and AI understanding.</p>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-icon">📈</div>
+                                <h3>SEO Enhancements</h3>
+                                <p>Important sections include embedded JSON-LD schema metadata, and all internal navigation is optimized for search engines.</p>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-icon">🔒</div>
+                                <h3>Error Handling</h3>
+                                <p>Every JavaScript operation includes proper error handling with try/catch blocks and fallbacks for better reliability.</p>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-icon">📦</div>
+                                <h3>File Embedding</h3>
+                                <p>JavaScript and CSS are embedded directly into the HTML file, with external dependencies limited to whitelisted sources.</p>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-icon">🚀</div>
+                                <h3>Optimization</h3>
+                                <p>Redundant functions, dead comments, and duplicated logic are removed, and similar components are combined for better performance.</p>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-icon">🔧</div>
+                                <h3>Self-Repair</h3>
+                                <p>Critical modules include self-repair hooks with fallback mechanisms to handle runtime errors gracefully.</p>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-icon">🧾</div>
+                                <h3>Logging Standards</h3>
+                                <p>All significant events are logged with a standardized format for better debugging and monitoring.</p>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-icon">📚</div>
+                                <h3>Documentation</h3>
+                                <p>Every major function and module includes clear documentation explaining its purpose and behavior.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 🟢 END: Core - Key Principles -->
+                 </div>
+             </section>
+
+            <section id="mcp-components-intro" class="page-section">
+                 <h1 class="section-title">MCP Components Overview</h1>
+                <div class="doc-content">
+                    <!-- 🟣 START: MCP - Components Overview -->
+                    <div id="mcp-components-overview-doc" class="leeway-region region-mcp" data-region-label="🟣 MCP: Components Overview">
+                        <h2>MCP Components</h2>
+                        <p>MCP (Memory, Communication, Processing) components are standardized tools that handle specific functions in a LEEWAY application:</p>
+                        <div class="mcp-grid">
+                            <div class="mcp-card">
+                                <h3>Memory</h3>
+                                <p>Handles data storage and retrieval, including:</p>
+                                <ul>
+                                    <li>Local storage management</li>
+                                    <li>Session management</li>
+                                    <li>IndexedDB integration</li>
+                                    <li>Cache management</li>
+                                </ul>
+                            </div>
+                            <div class="mcp-card">
+                                <h3>Communication</h3>
+                                <p>Manages interactions with external systems:</p>
+                                <ul>
+                                    <li>API communication</li>
+                                    <li>WebSocket handling</li>
+                                    <li>Email/SMS integration</li>
+                                    <li>Social media connections</li>
+                                </ul>
+                            </div>
+                            <div class="mcp-card">
+                                <h3>Processing</h3>
+                                <p>Handles data transformation and business logic:</p>
+                                <ul>
+                                    <li>Data validation</li>
+                                    <li>Format conversion</li>
+                                    <li>Calculations and algorithms</li>
+                                    <li>AI/ML integration</li>
+                                </ul>
+                            </div>
+                            <div class="mcp-card">
+                                <h3>Search</h3>
+                                <p>Provides search functionality within the application:</p>
+                                <ul>
+                                    <li>Content indexing</li>
+                                    <li>Query processing</li>
+                                    <li>Results ranking</li>
+                                    <li>Search UI components</li>
+                                </ul>
+                            </div>
+                            <div class="mcp-card">
+                                <h3>Scheduling</h3>
+                                <p>Manages time-based operations:</p>
+                                <ul>
+                                    <li>Task scheduling</li>
+                                    <li>Reminders and notifications</li>
+                                    <li>Periodic background tasks</li>
+                                    <li>Calendar integration</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="visual-placeholder" data-type="chart" data-description="Chart showing the relationships/flow between different MCP components (Memory, Communication, Processing, Search, Scheduling).">Chart: MCP Architecture Diagram</div>
+                    </div>
+                    <!-- 🟣 END: MCP - Components Overview -->
+                </div>
+            </section>
+
+            <section id="mcp-components-search" class="page-section">
+                <h1 class="section-title">🟣 Search (MCP-Search)</h1>
+                <div class="doc-content">
+                    <h2>🟣 Search (MCP-Search): Finding Information Locally – Powering In-Browser Discovery</h2>
+                     <p>MCP-Search is a <strong class="leeway-comment leeway-comment-purple">🟣 Purple</strong>-colored Region responsible for providing search capabilities within the LEEWAY™ application, leveraging the embedded content and semantic structure.</p>
+                    <pre class="leeway-code-purple"><code class="language-html">&lt;!-- &lt;span class="leeway-comment leeway-comment-purple"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟣 START: MCP - Search | @type: Module | @status: Active | @tech: JS/IndexedDB/JSON-LD/PyScript | @desc: Provides in-browser search capability over indexed content. --&gt;&lt;/span&gt;
+&lt;script id="mcp-search-script-doc"&gt;
+  <span class="js-comment">// **LEEWAY™ MCP-Search Implementation**</span>
+  <span class="js-comment">// Indexes content (HTML text, JSON-LD, potentially Memory data).</span>
+  <span class="js-comment">// Provides text and future semantic search functions.</span>
+  <span class="js-comment">// Requires MCP-Memory for index storage.</span>
+  <span class="js-comment">// Can leverage PyScript/WASM for semantic search.</span>
+  <span class="js-comment">// Provides functions: init(), indexContent(item), search(query), semanticSearch(query)</span>
+
+  <span class="js-keyword">const</span> MCP_Search_Doc = (() =&gt; {
+    <span class="js-comment">// Note: In a real app, the index would be stored/loaded via MCP_Memory.</span>
+    <span class="js-comment">// For this example, we use an in-memory array.</span>
+    <span class="js-keyword">let</span> contentIndex = [];
+    <span class="js-keyword">let</span> semanticIndex = []; <span class="js-comment">// For semantic search data</span>
+
+    <span class="js-comment">// --- Initialization ---</span>
+    <span class="js-keyword">async</span> <span class="js-function">function</span> init() {
+      console.log(<span class="js-string">"🟣 MCP-Search (Doc): Initializing."</span>);
+      <span class="js-comment">// In a real app, load index from MCP-Memory</span>
+      <span class="js-comment">// if (typeof MCP_Memory !== 'undefined') {</span>
+      <span class="js-comment">//    contentIndex = await MCP_Memory.recall('searchIndex_content') || [];</span>
+      <span class="js-comment">//    semanticIndex = await MCP_Memory.recall('searchIndex_semantic') || [];</span>
+      <span class="js-comment">// } else {</span>
+      <span class="js-comment">//    console.warn("🟣 MCP-Search (Doc): MCP-Memory not available, using in-memory index only.");</span>
+      <span class="js-comment">// }</span>
+      console.log(<span class="js-string">`🟣 MCP-Search (Doc): Loaded ${contentIndex.length} content items and ${semanticIndex.length} semantic items into index.`</span>);
+      <span class="js-comment">// TODO: Log search init event</span>
+      <span class="js-comment">// if(typeof logEvent_Documentation !== 'undefined') logEvent_Documentation('MCP_SEARCH', 'Initialized', { contentItems: contentIndex.length, semanticItems: semanticIndex.length }, 'mcp-search-script-doc');</span>
+
+      <span class="js-comment">// Initial indexing could happen here, or triggered externally</span>
+      <span class="js-comment">// For docs, we already have the content structured.</span>
+      <span class="js-comment">// Example: indexVisibleContent(); // Now called by global page script</span>
+    }
+
+    <span class="js-comment">// --- Indexing ---</span>
+    <span class="js-comment">// Indexes content from the current DOM, MCP-Memory, etc.</span>
+    <span class="js-function">function</span> indexContent(item) {
+        <span class="js-comment">// Item could be a DOM element, a JSON-LD object, or data from MCP_Memory</span>
+        <span class="js-comment">// Basic implementation: just store item reference or data</span>
+        <span class="js-keyword">if</span> (item) {
+             contentIndex.push(item);
+             <span class="js-comment">// If item has JSON-LD or specific semantic data, add to semantic index</span>
+             <span class="js-keyword">if</span> (item.jsonLd) {
+                 semanticIndex.push(item);
+             }
+             <span class="js-comment">// In a real app, you'd extract text, metadata, etc.</span>
+        }
+         <span class="js-comment">// In a real app, save index to MCP-Memory periodically or on updates</span>
+         <span class="js-comment">// if (typeof MCP_Memory_Documentation !== 'undefined') {</span>
+         <span class="js-comment">//    MCP_Memory_Documentation.store('searchIndex_content', contentIndex);</span>
+         <span class="js-comment">//    MCP_Memory_Documentation.store('searchIndex_semantic', semanticIndex);</span>
+         <span class="js-comment">// }</span>
+    }
+
+    <span class="js-comment">// Example: Basic indexing of visible sections (for documentation context)</span>
+     <span class="js-function">function</span> indexVisibleContent() {
+         console.log(<span class="js-string">"🟣 MCP-Search (Doc): Indexing visible sections..."</span>);
+         document.querySelectorAll(<span class="js-string">'section[id].page-section .doc-content'</span>).forEach(contentWrapper =&gt; {
+            <span class="js-keyword">const</span> section = contentWrapper.closest(<span class="js-string">'.page-section'</span>);
+            <span class="js-keyword">if</span> (!section) <span class="js-keyword">return</span>;
+             <span class="js-comment">// Extract text content</span>
+             <span class="js-keyword">const</span> text = section.textContent <span class="js-operator">||</span> <span class="js-string">""</span>;
+             <span class="js-comment">// Check for embedded JSON-LD within the section</span>
+             <span class="js-keyword">const</span> jsonLdScript = section.querySelector(<span class="js-string">'script[type="application/ld+json"]'</span>);
+             <span class="js-keyword">let</span> jsonLd = <span class="js-null">null</span>;
+             <span class="js-keyword">if</span> (jsonLdScript) {
+                 <span class="js-keyword">try</span> {
+                     jsonLd = JSON.parse(jsonLdScript.textContent);
+                 } <span class="js-keyword">catch</span> (e) {
+                     console.error(<span class="js-string">`🟣 MCP-Search (Doc): Failed to parse JSON-LD for section ${section.id}`</span>, e);
+                 }
+             }
+              indexContent({
+                 id: section.id,
+                 title: section.querySelector(<span class="js-string">'.section-title'</span>) ? section.querySelector(<span class="js-string">'.section-title'</span>).textContent : section.id,
+                 text: text,
+                 jsonLd: jsonLd,
+                 element: section <span class="js-comment">// Keep reference for later use (e.g., scrolling to result)</span>
+             });
+         });
+          console.log(<span class="js-string">`🟣 MCP-Search (Doc): Finished indexing. ${contentIndex.length} items indexed.`</span>);
+          <span class="js-comment">// TODO: Log indexing complete event</span>
+     }
+
+    <span class="js-comment">// --- Search Functions ---</span>
+    <span class="js-comment">// Simple text search over indexed content</span>
+    <span class="js-function">function</span> search(query) {
+      console.log(<span class="js-string">`🟣 MCP-Search (Doc): Performing text search for "${query}"...`</span>);
+      <span class="js-keyword">const</span> lowerQuery = query.toLowerCase();
+      <span class="js-keyword">const</span> results = contentIndex.filter(item =&gt;
+           (item.text &amp;&amp; item.text.toLowerCase().includes(lowerQuery)) <span class="js-operator">||</span>
+           (item.title &amp;&amp; item.title.toLowerCase().includes(lowerQuery)) <span class="js-operator">||</span>
+           (item.id &amp;&amp; item.id.toLowerCase().includes(lowerQuery)) <span class="js-operator">||</span>
+           (item.jsonLd &amp;&amp; JSON.stringify(item.jsonLd).toLowerCase().includes(lowerQuery))
+      );
+       console.log(<span class="js-string">`🟣 MCP-Search (Doc): Found ${results.length} matching items.`</span>);
+       <span class="js-comment">// TODO: Log search event</span>
+      <span class="js-keyword">return</span> results;
+    }
+
+    <span class="js-comment">// Basic Semantic Search Placeholder</span>
+     <span class="js-function">function</span> semanticSearch(query) {
+         console.log(<span class="js-string">`🟣 MCP-Search (Doc): Performing basic semantic search for "${query}"...`</span>);
+         <span class="js-keyword">const</span> lowerQuery = query.toLowerCase();
+         <span class="js-comment">// Basic implementation: Filter semantic items based on text content or JSON-LD values</span>
+         <span class="js-keyword">const</span> semanticResults = semanticIndex.filter(item =&gt;
+             (item.text &amp;&amp; item.text.toLowerCase().includes(lowerQuery)) <span class="js-operator">||</span>
+             (item.jsonLd &amp;&amp; JSON.stringify(item.jsonLd).toLowerCase().includes(lowerQuery))
+         );
+         console.log(<span class="js-string">`🟣 MCP-Search (Doc): Found ${semanticResults.length} semantic items containing "${query}" (basic match).`</span>);
+         <span class="js-keyword">return</span> semanticResults; <span class="js-comment">// Return basic filtered semantic results for now</span>
+     }
+
+    <span class="js-comment">// --- Public API ---</span>
+    <span class="js-keyword">return</span> {
+      init, <span class="js-comment">// Call this on app start</span>
+      indexContent, <span class="js-comment">// Expose for explicit indexing if needed</span>
+      search, <span class="js-comment">// Simple text search</span>
+      semanticSearch, <span class="js-comment">// Advanced semantic search (needs PyScript/AI setup)</span>
+      indexVisibleContent <span class="js-comment">// Expose for global script</span>
+    };
+  })();
+
+  <span class="js-comment">// Assign to global scope for page scripts to use, prefixed to avoid conflict</span>
+  window.MCP_Search_Documentation = MCP_Search_Doc;
+
+&lt;/script&gt;
+&lt;!-- &lt;span class="leeway-comment leeway-comment-purple"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟣 END: MCP - Search --&gt;&lt;/span&gt;</code></pre>
+                    <p>MCP-Search transforms your LEEWAY™ application into a readily searchable knowledge base. By building the search intelligence directly into the browser and leveraging the semantic structure, it offers a fast, efficient, and server-free way for users and AI agents to find the information they need, enhancing the application&amp;apos;s utility and the user&amp;apos;s ability to navigate its content.</p>
+                    <p>Next, we will explore the <strong>Scheduling (MCP-Scheduling)</strong> component, which manages time-based events.</p>
+                    <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Shows client-side indexing of HTML/JSON-LD/Memory, leading to Search Module returning results to UI or Agent.">Diagram: Client-side indexing of HTML/JSON-LD/Memory -&gt; Search Module -&gt; Results (to UI or Agent)</div>
+                </div>
+            </section>
+
+            <section id="mcp-components-scheduling" class="page-section">
+                <h1 class="section-title">🗓 Scheduling (MCP-Scheduling)</h1>
+                <div class="doc-content">
+                    <h2>🗓 Scheduling (MCP-Scheduling): Your App&apos;s Clock – Managing Time and Events Locally</h2>
+                    <p>Many applications need to interact with time – setting reminders, managing appointments, triggering actions on specific dates or times, or simply displaying a calendar view. Traditionally, this involves complex backend systems to store event data, handle time zones, and send out notifications. This adds another layer of server infrastructure and complexity.</p>
+                    <p>LEEWAY™&amp;apos;s <strong class="leeway-comment leeway-comment-purple">Scheduling (MCP-Scheduling)</strong> component empowers your application to manage time-based events and schedules directly within the user&amp;apos;s browser. It provides the tools to create, store, display, and trigger actions based on events, all within your single HTML file, leveraging browser capabilities and potentially PyScript for logic.</p>
+                    <h3>How MCP-Scheduling Works: Events &amp;amp; Timers In-Browser</h3>
+                    <p>The Scheduling MCP is a <strong class="leeway-comment leeway-comment-purple">🟣 Purple</strong>-colored Region in your single LEEWAY file. It primarily uses JavaScript to interface with timing mechanisms and potentially PyScript for event logic:</p>
+                    <ul>
+                        <li><strong>JavaScript Date &amp;amp; Timer APIs:</strong> Basic scheduling relies on standard browser JavaScript APIs like <code>Date</code>, <code>setTimeout</code>, <code>setInterval</code>, and potentially <code>requestAnimationFrame</code> for time-based visual updates.</li>
+                        <li><strong>Calendar Libraries (Optional):</strong> For rich calendar views and complex interaction (like drag-and-drop event management), external, browser-native JavaScript libraries like FullCalendar can be integrated (loaded via CSP-compliant CDN).</li>
+                        <li><strong>MCP-Memory Integration:</strong> Event data (appointment details, reminder settings) is stored persistently using <strong>MCP-Memory (IndexedDB)</strong>, allowing schedules to persist across sessions and function offline.</li>
+                        <li><strong>PyScript Integration:</strong> PyScript can be used for more complex scheduling logic, such as:
+                            <ul>
+                                <li>Parsing natural language for event creation (&amp;quot;Schedule a meeting tomorrow at 3 PM&amp;quot;).</li>
+                                <li>Complex recurring event calculations.</li>
+                                <li>Implementing reminder logic that might need access to other MCPs (e.g., sending a reminder via MCP-Communication).</li>
+                                <li>Interfacing with browser APIs that might be easier to orchestrate in Python.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Browser Notifications API:</strong> For reminders, the browser&amp;apos;s native Notification API can be used to display alerts to the user, even if the application is in a background tab.</li>
+                    </ul>
+                    <p>MCP-Scheduling orchestrates these components to provide a robust, client-side system for managing the temporal aspects of your application.</p>
+                    <h3>The Value of Embedded Scheduling</h3>
+                    <p>Integrating scheduling capabilities directly into the browser via MCP-Scheduling offers compelling benefits:</p>
+                    <ul>
+                        <li><strong>Server-Free Event Management:</strong> For many applications, you can manage user-specific schedules and reminders without needing a backend database or scheduling server.</li>
+                        <li><strong>Reduced Infrastructure Costs:</strong> Eliminates the need to build and maintain server-side scheduling logic and databases.</li>
+                        <li><strong>Offline Event Access &amp;amp; Reminders:</strong> Schedules and reminders can persist and potentially trigger even when the user is offline, as the data and logic are stored and run locally.</li>
+                        <li><strong>Faster Interaction:</strong> Creating, viewing, or modifying events is instant, as all interaction happens directly in the browser.</li>
+                        <li><strong>Empowering AI Agents:</strong> AI agents can use MCP-Scheduling to set task deadlines, remind users of appointments, trigger timed actions, or manage complex workflows based on time.</li>
+                        <li><strong>Enhanced Privacy:</strong> User schedule data remains client-side by default, enhancing privacy.</li>
+                    </ul>
+                    <p>MCP-Scheduling adds a vital time-awareness to your LEEWAY™ application. By providing the tools to manage events and trigger reminders directly within the browser, it enables more interactive, organized, and agent-assisted experiences without requiring complex and costly server infrastructure.</p>
+                    <h3>MCP-Scheduling in Code</h3>
+                    <p>Here&amp;apos;s how the MCP-Scheduling Region looks structurally in your LEEWAY™ file, highlighting its purpose and technology (<strong class="leeway-comment leeway-comment-purple">🟣 Purple</strong> color) and integration with other MCPs, including functional placeholders:</p>
+                    <pre class="leeway-code-purple"><code class="language-html">&lt;!-- &lt;span class="leeway-comment leeway-comment-purple"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟣 START: MCP - Scheduling | @type: Module | @status: Active | @tech: JS/PyScript/IndexedDB/FullCalendar | @desc: Manages time-based events, appointments, and reminders. --&gt;&lt;/span&gt;
+&lt;script id="mcp-scheduling-script-doc"&gt;
+  <span class="js-comment">// **LEEWAY™ MCP-Scheduling Implementation**</span>
+  <span class="js-comment">// Stores events via MCP-Memory. Manages timers with JS.</span>
+  <span class="js-comment">// Can integrate calendar UI (FullCalendar) and PyScript logic.</span>
+  <span class="js-comment">// Can trigger reminders via MCP-Communication/Notifications.</span>
+  <span class="js-comment">// Provides functions: init(), addEvent(eventDetails), getEvents(dateRange),</span>
+  <span class="js-comment">//                      removeEvent(eventId), checkReminders()</span>
+
+  <span class="js-keyword">const</span> MCP_Scheduling_Doc = (() =&gt; {
+    <span class="js-keyword">let</span> events = []; 
+    <span class="js-keyword">let</span> reminderInterval = <span class="js-null">null</span>;
+
+    <span class="js-keyword">async</span> <span class="js-function">function</span> init() {
+      console.log(<span class="js-string">"🟣 MCP-Scheduling (Doc): Initializing."</span>);
+      <span class="js-keyword">if</span> (<span class="js-keyword">typeof</span> MCP_Memory_Documentation === <span class="js-string">'undefined'</span> <span class="js-operator">||</span> <span class="js-keyword">typeof</span> MCP_Memory_Documentation.recall !== <span class="js-string">'function'</span>) {
+          console.error(<span class="js-string">"🟣 MCP-Scheduling (Doc): MCP-Memory_Documentation not available. Cannot initialize."</span>);
+          <span class="js-keyword">return</span>;
+      }
+      events = <span class="js-keyword">await</span> MCP_Memory_Documentation.recall(<span class="js-string">'allScheduledEvents'</span>) <span class="js-operator">||</span> [];
+      console.log(<span class="js-string">`🟣 MCP-Scheduling (Doc): Loaded ${events.length} events from Memory.`</span>);
+      <span class="js-keyword">if</span> (!reminderInterval) {
+         reminderInterval = setInterval(checkReminders, <span class="js-number">60000</span>);
+         console.log(<span class="js-string">"🟣 MCP-Scheduling (Doc): Started reminder check interval."</span>);
+      }
+    }
+
+    <span class="js-keyword">async</span> <span class="js-function">function</span> addEvent(eventDetails) {
+       <span class="js-keyword">if</span> (<span class="js-keyword">typeof</span> MCP_Memory_Documentation === <span class="js-string">'undefined'</span> <span class="js-operator">||</span> <span class="js-keyword">typeof</span> MCP_Memory_Documentation.store !== <span class="js-string">'function'</span>) {
+           console.error(<span class="js-string">"🟣 MCP-Scheduling (Doc): MCP-Memory_Documentation not available. Cannot add event."</span>);
+           <span class="js-keyword">return</span> <span class="js-null">null</span>;
+       }
+      <span class="js-keyword">const</span> newEvent = {
+        id: <span class="js-string">`event_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`</span>,
+        ...eventDetails, 
+        createdAt: Date.now(),
+        reminderSent: <span class="js-boolean">false</span>,
+        metadata: eventDetails.metadata <span class="js-operator">||</span> {}
+      };
+      events.push(newEvent);
+      <span class="js-keyword">await</span> MCP_Memory_Documentation.store(<span class="js-string">'allScheduledEvents'</span>, events);
+      console.log(<span class="js-string">"🟣 MCP-Scheduling (Doc): Event added:"</span>, newEvent.id, newEvent.title);
+      <span class="js-comment">// if(typeof logEvent_Documentation !== 'undefined') logEvent_Documentation('MCP_SCHEDULING', 'Event added', { eventId: newEvent.id, title: newEvent.title }, 'mcp-scheduling-script-doc');</span>
+      <span class="js-keyword">return</span> newEvent.id;
+    }
+
+    <span class="js-keyword">async</span> <span class="js-function">function</span> removeEvent(eventId) { <span class="js-comment">/* ... conceptual, needs MCP_Memory_Documentation.store ... */</span> <span class="js-keyword">return</span> <span class="js-boolean">false</span>; }
+    <span class="js-function">function</span> getEvents(dateRange) { <span class="js-comment">/* ... conceptual ... */</span> <span class="js-keyword">return</span> events; }
+
+    <span class="js-keyword">async</span> <span class="js-function">function</span> checkReminders() {
+       <span class="js-keyword">const</span> now = Date.now();
+       <span class="js-keyword">const</span> reminderWindowEnd = now + <span class="js-number">15</span> * <span class="js-number">60</span> * <span class="js-number">1000</span>;
+       <span class="js-keyword">const</span> dueReminders = events.filter(event =&gt;
+           !event.reminderSent &amp;&amp;
+           <span class="js-keyword">new</span> Date(event.start).getTime() &gt; now &amp;&amp;
+           <span class="js-keyword">new</span> Date(event.start).getTime() &lt;= reminderWindowEnd
+       );
+       <span class="js-keyword">if</span> (dueReminders.length &gt; <span class="js-number">0</span>) {
+           console.log(<span class="js-string">`🟣 MCP-Scheduling (Doc): ${dueReminders.length} reminders due.`</span>);
+       }
+       <span class="js-keyword">for</span> (<span class="js-keyword">const</span> event <span class="js-keyword">of</span> dueReminders) {
+           console.log(<span class="js-string">`🟣 MCP-Scheduling (Doc): Triggering reminder for "${event.title}" at ${event.start}`</span>);
+           <span class="js-comment">// Actual notification logic (Browser API, AgentLee.notify) would go here</span>
+           event.reminderSent = <span class="js-boolean">true</span>;
+           <span class="js-comment">// TODO: Update event in MCP_Memory_Documentation</span>
+       }
+    }
+    <span class="js-keyword">return</span> { init, addEvent, removeEvent, getEvents };
+  })();
+  window.MCP_Scheduling_Documentation = MCP_Scheduling_Doc; 
+&lt;/script&gt;
+&lt;!-- &lt;span class="leeway-comment leeway-comment-purple"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟣 END: MCP - Scheduling --&gt;&lt;/span&gt;</code></pre>
+                    <p>MCP-Scheduling provides the temporal intelligence for your LEEWAY™ application, enabling it to manage events, schedules, and reminders directly within the browser. By leveraging client-side storage and processing, it offers a server-free solution for time-based functionality, enhancing user organization and agent capabilities.</p>
+                    <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Shows flow from event data to storage in MCP-Memory, a timer triggering checkReminders function, leading to browser notifications or agent alerts.">Diagram: Event Data -&gt; MCP-Memory -&gt; Timer -&gt; Check Reminders -&gt; Notifications/Agent</div>
+                </div>
+            </section>
+
+            <section id="mcp-components-memory" class="page-section">
+                <h1 class="section-title">🟣 Memory (MCP-Memory)</h1>
+                <div class="doc-content">
+                    <h2>🟣 Memory (MCP-Memory): Your App&apos;s Persistent Storage – Remembering Across Sessions</h2>
+                    <p>The Memory MCP (<strong class="leeway-comment leeway-comment-purple">🟣 Purple</strong>) is responsible for managing persistent client-side data storage. It typically leverages browser APIs like IndexedDB or Local Storage to store user preferences, cached data, application state, logs, and other information that needs to persist across browser sessions or function offline.</p>
+                    <p>It provides a standardized interface for other parts of the LEEWAY application (Core logic, UI components, other MCPs, or AI agents) to store and retrieve data reliably without relying on a remote server for simple state management.</p>
+                    <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Shows flow from App/UI -> MCP-Memory -> IndexedDB.">Diagram: App/UI &lt;-&gt; MCP-Memory &lt;-&gt; IndexedDB</div>
+                     <pre class="leeway-code-purple"><code class="language-html">&lt;!-- &lt;span class="leeway-comment leeway-comment-purple"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟣 START: MCP - Memory | @type: Module | @status: Conceptual | @tech: JS/IndexedDB | @desc: Manages local data storage &amp; recall. --&gt;&lt;/span&gt;
+&lt;script id="mcp-memory-script-doc-conceptual"&gt;
+  <span class="js-comment">// Conceptual MCP_Memory_Documentation (already in page scripts, this is for doc display)</span>
+  <span class="js-comment">// const MCP_Memory_Documentation = (() =&gt; {</span>
+  <span class="js-comment">//   const store = {};</span>
+  <span class="js-comment">//   async function recall(key) { /* ... */ }</span>
+  <span class="js-comment">//   async function storeData(key, value) { /* ... */ }</span>
+  <span class="js-comment">//   async function storeLogEntry(logEntry) { /* ... */ }</span>
+  <span class="js-comment">//   return { init: async () =&gt; {}, recall, store: storeData, storeLogEntry };</span>
+  <span class="js-comment">// })();</span>
+&lt;/script&gt;
+&lt;!-- &lt;span class="leeway-comment leeway-comment-purple"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟣 END: MCP - Memory --&gt;&lt;/span&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="mcp-components-communication" class="page-section">
+                <h1 class="section-title">🟣 Communication (MCP-Communication)</h1>
+                <div class="doc-content">
+                    <h2>🟣 Communication (MCP-Communication): Talking to the World – External Interactions</h2>
+                    <p>The Communication MCP (<strong class="leeway-comment leeway-comment-purple">🟣 Purple</strong>) handles all interactions with external services or APIs. This includes making HTTP requests (fetching data, submitting forms), managing WebSocket connections for real-time data, or bridging to browser features that interact with the outside world (like the Share API, although direct external communication like email/SMS would typically use a local utility bridged via the protocol handler).</p>
+                    <p>It provides a standardized and potentially sandboxed way for the application to interact with external resources, centralizing the logic for network requests, error handling for external calls, and potentially managing API keys (if stored securely, e.g., via a local utility). AI agents would use this MCP to interact with remote information sources or services.</p>
+                     <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Shows flow from App/Agent -> MCP-Communication -> External API/WebSocket/Utility.">Diagram: App/Agent &lt;-&gt; MCP-Communication &lt;-&gt; External Service</div>
+                </div>
+            </section>
+
+            <section id="mcp-components-processing" class="page-section">
+                <h1 class="section-title">🟣 Processing (MCP-Processing)</h1>
+                <div class="doc-content">
+                    <h2>🟣 Processing (MCP-Processing): The Engine Room – Data &amp; Logic Handling</h2>
+                    <p>The Processing MCP (<strong class="leeway-comment leeway-comment-purple">🟣 Purple</strong>) is designed for performing computations, data transformations, and complex business logic that doesn&apos;t fit neatly into UI interactions or core data flow. This can include validation, formatting, complex calculations, image manipulation (using browser APIs), or leveraging Web Workers and PyScript/WASM for heavy or long-running tasks.</p>
+                    <p>It acts as the application&apos;s internal engine room, ensuring that computationally intensive tasks are handled efficiently, often offloading them to background threads to prevent the main UI thread from blocking. This MCP is crucial for enabling advanced features and AI capabilities directly within the browser without performance degradation.</p>
+                     <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Shows flow from Data/Input -> MCP-Processing -> (Optional: Web Worker/PyScript) -> Processed Output.">Diagram: Data/Input -&gt; MCP-Processing -&gt; (Web Worker/PyScript) -&gt; Output</div>
+                </div>
+            </section>
+            
+            <section id="implementation-process-intro" class="page-section">
+                <h1 class="section-title">🛠 Implementation Process</h1>
+                <div class="doc-content">
+                    <h2>🛠 Implementation Process: Building Your LEEWAY™ Application</h2>
+                     <p>You now understand the vision, the foundational principles, and the powerful embedded capabilities of LEEWAY™. The next logical step is to learn <strong>how to take these concepts and build actual, working applications</strong> that adhere to the LEEWAY standard and leverage its full potential.</p>
+                    <p>The <strong>Implementation Process</strong> section of this documentation serves as your practical guide. It moves from the &amp;apos;what&amp;apos; and &amp;apos;why&amp;apos; to the &amp;apos;how-to,&amp;apos; detailing the techniques, best practices, and specific considerations for constructing robust, high-performing, and maintainable LEEWAY™ applications within the single-file paradigm.</p>
+                    <p>Building the LEEWAY way is different from assembling traditional multi-file projects or configuring complex frameworks. It requires a specific mindset focused on clarity, modularity &lt;em&gt;within&lt;/em&gt; the file, and leveraging browser-native power. This section provides the knowledge you need to translate the LEEWAY principles into functional code.</p>
+                    <p>Key topics covered within this section include:</p>
+                    <ul>
+                        <li><strong>Error Handling:</strong> Strategies for building resilient code that anticipates and manages failures gracefully.</li>
+                        <li><strong>SEO Enhancements:</strong> Ensuring your application is maximally discoverable by search engines and AI.</li>
+                        <li><strong>File Embedding:</strong> Practical guidance on managing all code and assets within the single HTML file.</li>
+                        <li><strong>Optimization:</strong> Techniques for ensuring high performance and efficiency, even in large codebases.</li>
+                    </ul>
+                    <p>Think of this section as the builder&amp;apos;s handbook for LEEWAY™. It provides the essential practical knowledge for developers to apply the principles effectively, create applications that embody the LEEWAY standard, and unlock the benefits of clarity, performance, and built-in intelligence.</p>
+                    <p>By mastering the techniques in this section, you will be equipped to build LEEWAY™ applications that are not only functional but also inherently robust, optimized, and compliant with the highest standards of the system.</p>
+                    <p>Let&amp;apos;s dive into the first topic: <strong>Error Handling</strong>.</p>
+                    <div class="visual-placeholder" data-type="icons" data-description="4 Icons for Error Handling, SEO, File Embedding, Optimization.">Icons: Error Handling, SEO, File Embedding, Optimization</div>
+                </div>
+            </section>
+
+            <section id="implementation-process-error-handling" class="page-section">
+                <h1 class="section-title">🧯 Error Handling</h1>
+                 <div class="doc-content">
+                    <h2>🧯 Error Handling: Built to Be Resilient – Surviving and Repairing Failures</h2>
+                    <p>In any software system, errors will occur. Code might fail, data might be unexpected, external resources might be unavailable. In traditional development, detecting, diagnosing, and fixing these issues can be a difficult, time-consuming process, often requiring digging through logs, reproducing complex scenarios, and navigating fragmented code across multiple files and layers. Application failures directly impact user trust and investor confidence.</p>
+                    <p>LEEWAY™ approaches error handling not as an afterthought, but as a core, integrated part of the system&amp;apos;s design. Leveraging its principles of Colorization, Modularization, Semantic Tagging, and embedded intelligence, LEEWAY™ applications are designed to be <strong>proactive, visually communicative, and resilient</strong> in the face of failure.</p>
+                    <p>Error handling in LEEWAY™ is about:</p>
+                    <ol>
+                        <li><strong>Immediate, Visual Detection:</strong> Signaling problems where they occur, instantly.</li>
+                        <li><strong>Precise Localization:</strong> Pinpointing the exact source of the error within the code structure.</li>
+                        <li><strong>Automated Resilience:</strong> Implementing mechanisms for graceful fallback or self-correction.</li>
+                        <li><strong>Intelligent Assistance:</strong> Empowering AI agents to understand and help resolve issues.</li>
+                        <li><strong>Clear Logging:</strong> Creating a traceable record of everything that happens.</li>
+                    </ol>
+                    <h3>How LEEWAY™ Handles Errors: A Multi-Layered Approach</h3>
+                    <p>Error handling is not just a single function; it&amp;apos;s a system embedded throughout your LEEWAY™ application:</p>
+                    <ol>
+                        <li><strong>Visual Error Signaling (The Red Glow):</strong>
+                            <ul>
+                                <li><strong>Mechanism:</strong> Critical errors or failing code regions are often visually flagged using the <strong class="leeway-comment leeway-comment-red">🔴 Red</strong> color from the LEEWAY spectrum. This might involve changing the border color, adding a flashing glow, or displaying a prominent error indicator directly on or near the affected code block or UI element.</li>
+                                <li><strong>Why it works:</strong> It&amp;apos;s an immediate, unmistakable visual alert right where the problem originates in the codebase or on the screen.</li>
+                                <li><strong>Implementation:</strong> Use CSS rules triggered by error states or flags in your JavaScript/PyScript to apply the red styling.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Structural Error Localization (Regions &amp;amp; Tags):</strong>
+                            <ul>
+                                <li><strong>Mechanism:</strong> Error reporting includes context about the <strong>Region</strong> name, its <strong>Semantic Tag</strong> (<code>id="..."</code>), and line number.</li>
+                                <li><strong>Why it works:</strong> Provides a precise address for the error within the single file.</li>
+                                <li><strong>Implementation:</strong> Incorporate Region name, Semantic ID, and line context into your error logging functions.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Automated Resilience (Try/Catch &amp;amp; Self-Repair Hooks):</strong>
+                            <ul>
+                                <li><strong>Mechanism:</strong> Mandated use of <code>try...catch</code> or promise <code>.catch()</code>. Advanced modules include &amp;quot;Self-Repair Hooks&amp;quot; for fallback actions.</li>
+                                <li><strong>Why it works:</strong> Prevents single errors from crashing the application and allows for graceful degradation.</li>
+                                <li><strong>Implementation:</strong> Wrap fragile code in <code>try...catch</code>. Define fallback logic.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Intelligent Assistance (AI Agent Navigation):</strong>
+                            <ul>
+                                <li><strong>Mechanism:</strong> Structured codebase allows AI agents to navigate to logged error locations.</li>
+                                <li><strong>Why it works:</strong> Turns AI into a powerful debugging assistant.</li>
+                                <li><strong>Implementation:</strong> Design AI tools that use LEEWAY error logs and structural tags.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Clear, Traceable Logging:</strong>
+                            <ul>
+                                <li><strong>Mechanism:</strong> Every significant event, including errors, is logged in a standardized format (see Logging Standards) and stored locally (MCP-Memory).</li>
+                                <li><strong>Why it works:</strong> Provides a comprehensive historical record for developers and AI.</li>
+                                <li><strong>Implementation:</strong> Implement a standardized <code>logEvent()</code> function.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <h3>Why Robust Error Handling is Essential in LEEWAY™</h3>
+                    <ul>
+                        <li><strong>System Stability, Accelerated Debugging, Enhanced Reliability, Developer Confidence, AI Maintenance.</strong></li>
+                    </ul>
+                    <p>Error Handling in LEEWAY™ is a proactive, intelligent, and visually integrated process, setting a high standard for stability and maintainability.</p>
+                    <div class="visual-placeholder" data-type="flowchart" data-description="Flowchart showing the error handling process: Detection, Logging, Localization, Self-Repair attempt, Reporting/Notification.">Flowchart: Detection -&gt; Logging -&gt; Localization -&gt; Self-Repair -&gt; Reporting</div>
+                    <div class="visual-placeholder" data-type="code-visual" data-description="Screenshot/Visual of code showing a try/catch block with logEvent call and a corresponding red visual indicator on the element/region.">Code Visual: try/catch with logEvent and Red Visual Cue</div>
+                </div>
+            </section>
+
+            <section id="implementation-process-seo-enhancements" class="page-section">
+                <h1 class="section-title">🔍 SEO Enhancements</h1>
+                <div class="doc-content">
+                    <h2>🔍 SEO Enhancements: Get Found, Rank High – Embedding Meaning for Search Engines and AI</h2>
+                    <p>Search Engine Optimization (SEO) is critical. Traditional Single-Page Applications (SPAs) often face SEO challenges. LEEWAY™ solves this <strong>by design</strong>, integrating robust SEO enhancements using <strong>Semantic Tagging</strong> and other standard web technologies. This is <strong>mandatory</strong> and <strong>inherent</strong> to the LEEWAY standard. The <strong class="leeway-comment leeway-comment-red">🔴 Red</strong> color in the LEEWAY spectrum often signifies areas related to SEO and Analytics.</p>
+                    <h3>How LEEWAY™ Builds In Next-Level SEO (The Exact Methods)</h3>
+                    <ol>
+                        <li><strong>Comprehensive Semantic Structure (&lt;section&gt;, &lt;article&gt;, <code>id</code>, ARIA):</strong> Every major block is wrapped in semantic HTML5 tags with unique, descriptive <code>id</code> attributes. ARIA roles enhance accessibility and semantics.</li>
+                        <li><strong>Embedded Structured Data (Schema.org JSON-LD):</strong> Core LEEWAY requirement. <code>&lt;script type="application/ld+json"&gt;</code> blocks with Schema.org vocabulary are embedded, usually within or adjacent to <strong class="leeway-comment leeway-comment-red">🔴 Red</strong>-tagged content. This enables Rich Results in Google and better parsing by AI like Gemini 2.5.</li>
+                        <li><strong>Internal Anchor-Based Navigation (&lt;a href="#id"&gt;):</strong> Standard HTML anchor links pointing to semantic <code>id</code> attributes ensure all content is discoverable by crawlers.</li>
+                        <li><strong>Comprehensive Meta Tags (including OpenGraph):</strong> Standard HTML <code>&lt;meta&gt;</code> tags in the <code>&lt;head&gt;</code>, including OpenGraph and Twitter Card metadata for rich social media previews.</li>
+                        <li><strong>Event-Driven Analytics Tracking (GA4 Ready):</strong> Integrates analytics (like Google Analytics 4) by triggering events based on user interactions with specific Regions or elements (using IntersectionObserver and <code>gtag('event', ...)</code>).</li>
+                    </ol>
+                    <h3>The Automatic SEO and AI Value Proposition</h3>
+                    <p>Every LEEWAY application, by its nature, is: Google-Optimized, Social-Media Ready, AI-Parsable, and Inherently Traceable.</p>
+                    <h3>SEO Enhancements in Code (Conceptual Example - <strong class="leeway-comment leeway-comment-red">🔴 Red</strong>)</h3>
+                    <pre class="leeway-code-red"><code class="language-html">&lt;!-- &lt;span class="leeway-comment leeway-comment-red"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🔴 START: SEO - Product Page Metadata &amp;amp; Analytics | @type: Metadata/Schema/Analytics | @status: Active | @tech: HTML/JSON-LD/JS/GA4 | @desc: Provides structured data &amp;amp; meta tags for product page, includes tracking hooks. --&gt;&lt;/span&gt;
+&lt;section id="seo-product-metadata-doc" class="leeway-region leeway-seo" aria-label="Product Page SEO Metadata"&gt;
+
+  &lt;!-- Standard Meta Tags (usually in &amp;lt;head&amp;gt;, but shown here conceptually for the section) --&gt;
+  &lt;meta property="og:title" content="[Product Name] - Your Store"&gt;
+  &lt;meta property="og:description" content="Check out this amazing product: [Product Short Desc]."&gt;
+  &lt;meta property="og:image" content="[URL to Product Image]"&gt;
+  &lt;meta property="og:url" content="[Canonical URL for this product page/section]"&gt;
+  &lt;meta name="twitter:card" content="summary_large_image"&gt;
+
+  &lt;!-- Schema.org JSON-LD for Product --&gt;
+  &lt;script type="application/ld+json"&gt;
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "[Product Name]",
+    "image": "[URL to Product Image]",
+    "description": "[Full Product Description]",
+    "sku": "[Product SKU]",
+    "brand": { "@type": "Brand", "name": "[Your Brand Name]" },
+    "offers": {
+      "@type": "Offer", "url": "[Product Page URL]", "priceCurrency": "USD", "price": "[Product Price]",
+      "itemCondition": "https://schema.org/NewCondition", "availability": "https://schema.org/InStock",
+      "seller": { "@type": "Organization", "name": "[Your Store Name]" }
+    },
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "[Average Rating]", "reviewCount": "[Total Review Count]" }
+  }
+  &lt;/script&gt;
+
+   &lt;!-- Standard Analytics Tracking Hooks --&gt;
+   &lt;script&gt;
+      <span class="js-comment">// This script provides functions to trigger analytics events for this specific section.</span>
+      <span class="js-keyword">const</span> sectionId_seo_prod = <span class="js-string">'seo-product-metadata-doc'</span>; 
+
+      <span class="js-function">function</span> trackProductSectionView_Doc(productDetails) {
+          <span class="js-keyword">if</span> (<span class="js-keyword">typeof</span> gtag === <span class="js-string">'function'</span>) {
+               gtag(<span class="js-string">'event'</span>, <span class="js-string">'page_view'</span>, {
+                   page_title: document.title + <span class="js-string">' - Product: '</span> + productDetails.name,
+                   page_location: window.location.origin + window.location.pathname + <span class="js-string">'#'</span> + sectionId_seo_prod,
+                   items: [{ item_id: productDetails.sku, item_name: productDetails.name, price: productDetails.price }]
+               });
+          }
+           <span class="js-comment">// if(typeof logEvent_Documentation !== 'undefined') logEvent_Documentation('ANALYTICS_EVENT', 'Product Section Viewed', { productId: productDetails.sku }, sectionId_seo_prod);</span>
+      }
+
+      <span class="js-function">function</span> trackAddToCart_Doc(productDetails, quantity) {
+          <span class="js-keyword">if</span> (<span class="js-keyword">typeof</span> gtag === <span class="js-string">'function'</span>) {
+               gtag(<span class="js-string">'event'</span>, <span class="js-string">'add_to_cart'</span>, {
+                   items: [{ item_id: productDetails.sku, item_name: productDetails.name, price: productDetails.price, quantity: quantity }]
+               });
+          }
+           <span class="js-comment">// if(typeof logEvent_Documentation !== 'undefined') logEvent_Documentation('ANALYTICS_EVENT', 'Add to Cart', { productId: productDetails.sku, quantity: quantity }, sectionId_seo_prod);</span>
+      }
+   &lt;/script&gt;
+&lt;/section&gt;
+&lt;!-- &lt;span class="leeway-comment leeway-comment-red"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🔴 END: SEO - Product Page Metadata &amp;amp; Analytics --&gt;&lt;/span&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="implementation-process-file-embedding" class="page-section">
+                <h1 class="section-title">📂 File Embedding</h1>
+                 <div class="doc-content">
+                    <h2>📂 File Embedding: The Power of &apos;The One&apos; – Everything in a Single File</h2>
+                    <p>LEEWAY™ is built on the commandment of <strong>Single-File Integrity</strong>. This isn&amp;apos;t just a theoretical idea; it&amp;apos;s a concrete implementation choice: your entire web application, from the initial structure to the most complex logic and styles, is contained within one single <code>.html</code> file.</p>
+                    <p>In a world that has trended towards fragmenting applications across dozens or hundreds of separate files, components, and services, LEEWAY&amp;apos;s single file might seem counter-intuitive at first. However, it is a deliberate, powerful architectural decision that unlocks unprecedented simplicity, portability, and control.</p>
+                    <p>File Embedding in LEEWAY™ is the principle of housing &lt;em&gt;all&lt;/em&gt; necessary code and data directly within this primary HTML document, making it a completely self-contained, sovereign entity.</p>
+                    <h3>How Everything Lives in One File (The Exact Mechanisms)</h3>
+                    <p>So, how does HTML, CSS, JavaScript, Python logic, and even structured data coexist within a single <code>.html</code> file? LEEWAY™ leverages standard, long-standing, and modern HTML features:</p>
+                    <ol>
+                        <li><strong>HTML Structure:</strong> The main backbone of your application, providing the document layout and content elements.</li>
+                        <li><strong>Embedded CSS (<code>&lt;style&gt;</code> tags):</strong> All application styling is written directly within one or more <code>&lt;style&gt;</code> blocks located within the <code>&lt;head&gt;</code> or <code>&lt;body&gt;</code> (often organized into <strong class="leeway-comment leeway-comment-yellow">🟡 Yellow</strong>-colored Regions for themes and styling). This includes global styles, component-specific styles, and CSS variables (like your LEEWAY color spectrum).</li>
+                        <li><strong>Embedded JavaScript (<code>&lt;script&gt;</code> tags):</strong> All client-side scripting logic is written directly within one or more <code>&lt;script&gt;</code> blocks within the <code>&lt;body&gt;</code> (often organized into 🟢 Green, 🔵 Blue, or 🟣 Purple Regions depending on function). This includes core controllers, UI interactions, and MCP logic. Using <code>&lt;script type="module"&gt;</code> allows for modern JavaScript features and internal module-like organization within the single file.</li>
+                        <li><strong>Embedded Python (<code>&lt;py-script&gt;</code> tags):</strong> Python logic, enabling complex computations, AI integrations, and data analysis, is written directly within <code>&lt;py-script&gt;</code> blocks within the <code>&lt;body&gt;</code> (primarily in 🟣 Purple MCP Regions or 🟢 Green logic regions). This leverages Pyodide to run Python in the browser via WebAssembly.</li>
+                        <li><strong>Embedded Structured Data (<code>&lt;script type="application/ld+json"&gt;</code>):</strong> As detailed in SEO Enhancements, JSON-LD metadata for SEO and AI parsing is embedded within dedicated <code>&lt;script&gt;</code> tags with the specific type, placed within <strong class="leeway-comment leeway-comment-red">🔴 Red</strong>-colored Regions adjacent to the content they describe.</li>
+                        <li><strong>Inline Data:</strong> Small amounts of configuration or initial data can be embedded directly as JavaScript objects within <code>&lt;script&gt;</code> tags or even within HTML <code>data-*</code> attributes.</li>
+                    </ol>
+                    <p><strong>What about Images, Fonts, or Large Assets?</strong></p>
+                    <p>While core &lt;em&gt;code&lt;/em&gt; is embedded, it&amp;apos;s impractical to embed large binary assets like images directly (though small icons can use Data URIs). LEEWAY™ handles this using standard HTML tags (<code>&lt;img&gt;</code>, <code>&lt;link&gt;</code>) pointing to:</p>
+                    <ul>
+                        <li><strong>CDNs (Content Delivery Networks):</strong> The preferred method for large assets and &lt;em&gt;any&lt;/em&gt; necessary external libraries (like the PyScript interpreter itself, or FullCalendar JS/CSS). These external calls are strictly limited to a predefined list of trusted sources managed by a <strong>Content Security Policy (CSP)</strong> header in the <code>&lt;head&gt;</code>.</li>
+                        <li><strong>Self-Hosted Assets:</strong> If you have your own server, you can serve assets like images from there.</li>
+                    </ul>
+                    <h3>How File Embedding Works With Other Principles</h3>
+                    <p>The Single-File principle is only viable and powerful because of other core LEEWAY™ standards: Modularization, Colorization, and Optimization.</p>
+                    <h3>The Unmatched Power of File Embedding</h3>
+                    <p>Embracing the single-file architecture provides revolutionary benefits: Zero Build Process, Ultimate Portability, Radical Deployment Simplicity, Reduced Complexity, Potentially Faster Initial Connection, and Atomic Version Control.</p>
+                    <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Shows icons for HTML, CSS, JS, Py, JSON, etc., being contained within a single file icon.">Diagram: HTML, CSS, JS, Py, JSON all contained in one file icon.</div>
+                    <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Shows Developer icon -> Single File icon -> arrows to icons for GitHub Pages, Netlify, Firebase Hosting etc.">Diagram: Developer -&gt; Single File -&gt; Hosting Icons</div>
+                </div>
+            </section>
+
+            <section id="implementation-process-optimization" class="page-section">
+                <h1 class="section-title">🚀 Optimization</h1>
+                <div class="doc-content">
+                    <h2>🚀 Optimization: LEEWAY™ Runs on Rails – Ensuring Speed and Efficiency</h2>
+                    <p>A common question, when hearing &amp;quot;single HTML file with everything embedded,&amp;quot; is about performance. LEEWAY™ is architected with <strong>Optimization</strong> as a core design principle, leveraging modern browser features and smart techniques to ensure your application is not just functional, but lightning fast and efficient.</p>
+                    <p>Key areas of LEEWAY™ Optimization include: Intelligent Loading, Efficient Execution, Optimized Rendering, and Smart Memory Management.</p>
+                    <h3>How LEEWAY™ Optimizes (The Exact Methods)</h3>
+                    <ol>
+                        <li><strong>Compression (Server-Side):</strong> Brotli or Gzip for the <code>.html</code> file.</li>
+                        <li><strong>Browser Caching (Service Workers):</strong> For PWA behavior and instantaneous repeat loads.</li>
+                        <li><strong>Lazy Loading (Region-Based):</strong> Execute code/assets only when that Region is needed.</li>
+                        <li><strong>Asynchronous Execution (async, defer, Promises):</strong> Prevents scripts from blocking the main browser thread.</li>
+                        <li><strong>Background Processing (Web Workers, PyScript):</strong> Offload heavy computations.</li>
+                        <li><strong>Optimized Rendering (CSS &amp;amp; RAF):</strong> GPU acceleration, minimizing reflows, <code>requestAnimationFrame</code>.</li>
+                        <li><strong>Smart Memory Management (IndexedDB):</strong> Store large datasets in MCP-Memory (IndexedDB).</li>
+                    </ol>
+                    <h3>The Outcome: Observable Performance</h3>
+                    <p>Fast Initial Load, Near-Instant Repeat Loads, Fluid User Interface, Efficient Resource Usage.</p>
+                    <div class="visual-placeholder" data-type="chart" data-description="Chart comparing Load Time and Resource Usage of Traditional vs. LEEWAY apps.">Chart: Load Time and Resource Usage Comparison</div>
+                    <div class="visual-placeholder" data-type="diagram" data-description="Diagram showing how Service Workers cache, code lazy-loads, and tasks go to Web Workers.">Diagram: Service Workers Cache, Lazy Loading, Web Workers</div>
+                </div>
+            </section>
+            
+            <section id="advanced-topics-intro" class="page-section">
+                <h1 class="section-title">🟠 Advanced Topics</h1>
+                <div class="doc-content">
+                    <h2>🟠 Advanced Topics: Elevating Your LEEWAY™ Application</h2>
+                    <p>You&amp;apos;ve explored the core principles, understood the power of embedded MCP components, and learned the fundamental techniques for implementing a LEEWAY™ application. Now, we move beyond the essentials to delve into capabilities that add layers of sophistication, robustness, and transparency to your creation.</p>
+                    <p>Key areas explored in this section include: Self-Repair Hooks, Logging Standards, and In-Code Documentation Rules.</p>
+                    <div class="visual-placeholder" data-type="icons" data-description="3 Icons for Self-Repair, Logging, In-Code Documentation.">Icons: Self-Repair, Logging, In-Code Documentation</div>
+                </div>
+            </section>
+
+            <section id="advanced-topics-self-repair" class="page-section">
+                <h1 class="section-title">🧬 Self-Repair Hooks</h1>
+                <div class="doc-content">
+                    <h2>🧬 Self-Repair Hooks: Your App Knows How to Fix Itself – Built-in Resilience</h2>
+                    <p><strong>Self-Repair Hooks</strong> are embedded logic segments within your LEEWAY application designed to proactively <strong>detect signs of failure or instability</strong> in critical components and <strong>attempt automated corrective actions</strong> to restore functionality or gracefully manage the issue without crashing the entire single file.</p>
+                    <h3>Why Self-Repair Hooks Are Essential in LEEWAY™</h3>
+                    <p>Enhancing Resilience, Improving User Experience, Reducing Downtime, Supporting AI Agents.</p>
+                    <h3>How Self-Repair Hooks Work (Leveraging LEEWAY Principles)</h3>
+                    <ol>
+                        <li><strong>Triggered by Error Handling &amp;amp; Monitoring:</strong> Often in <code>catch</code> blocks or via monitoring scripts.</li>
+                        <li><strong>Informed by Logging Standards:</strong> Analyzing logs to understand failure nature.</li>
+                        <li><strong>Accessing Fallback Resources (MCP-Memory):</strong> Loading cached data or default configurations.</li>
+                        <li><strong>Executing Corrective Actions:</strong> Retries, fallback content, module reset, notifying AI.</li>
+                        <li><strong>Reporting the Repair Attempt:</strong> Logging its own actions.</li>
+                    </ol>
+                    <h3>Examples of Self-Repair Hooks in Practice</h3>
+                    <p>Failing API Call (use cached data), Stuck MCP (reset module), PyScript Error (fallback to simpler JS calculation).</p>
+                    <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Shows a failure triggering a Self-Repair Hook which attempts recovery (e.g., retry, fallback to Memory).">Diagram: Failure -&gt; Self-Repair Hook -&gt; Recovery Attempt</div>
+                    <div class="visual-placeholder" data-type="code-visual" data-description="Screenshot/Visual of code showing a try/catch block that calls a self-repair function in the catch block.">Code Visual: try/catch block calling a self-repair function.</div>
+                </div>
+            </section>
+
+            <section id="advanced-topics-logging-standards" class="page-section">
+                <h1 class="section-title">📜 Logging Standards</h1>
+                <div class="doc-content">
+                    <h2>📜 Logging Standards: The Application&apos;s Journal – Tracking Every Event and Action</h2>
+                    <p>In any complex system, knowing what happened, when it happened, and why is crucial. LEEWAY™ mandates strict <strong>Logging Standards</strong> to create a comprehensive, standardized journal of the application&apos;s runtime activity, stored within the application itself (typically via MCP-Memory).</p>
+                    <h3>How LEEWAY™ Logging Works (The Standard Format)</h3>
+                    <ul>
+                        <li><strong>The <code>logEvent()</code> Function:</strong> The core of the logging system.</li>
+                        <li><strong>Standard Log Entry Structure:</strong> Each log entry includes <code>timestamp</code>, <code>type</code>, <code>regionId</code> / <code>semanticId</code>, <code>description</code>, and optional <code>details</code> (object).</li>
+                        <li><strong>Storage (MCP-Memory):</strong> Log entries are typically stored persistently using MCP-Memory (IndexedDB).</li>
+                        <li><strong>Visual Indicators (Optional):</strong> Critical errors can trigger <strong class="leeway-comment leeway-comment-red">🔴 Red</strong> visual indicators.</li>
+                    </ul>
+                    <h3>Example of Logging in Code (<strong class="leeway-comment leeway-comment-red">🔴 Red</strong> Context)</h3>
+                    <pre class="leeway-code-red"><code class="language-html">&lt;!-- &lt;span class="leeway-comment leeway-comment-red"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🔴 START: Logging - Core Function | @type: Module/Utility | @status: Active | @tech: JS/IndexedDB | @desc: Handles application-wide event logging. --&gt;&lt;/span&gt;
+&lt;script id="logging-utility-doc"&gt;
+  <span class="js-comment">// **LEEWAY™ Logging Standard Implementation (Conceptual for Docs)**</span>
+  <span class="js-comment">// Provides the central logEvent_Documentation function.</span>
+  <span class="js-comment">// Stores logs in MCP-Memory_Documentation (IndexedDB).</span>
+  <span class="js-comment">// Assumes MCP_Memory_Documentation is initialized and available.</span>
+
+  <span class="js-keyword">const</span> Logging_Doc = (() =&gt; {
+    <span class="js-comment">/**
+     * Logs a standardized application event.
+     * @param {string} type - Event category (e.g., 'UserAction', 'Error', 'MCP-Search').
+     * @param {string} description - Human-readable summary.
+     * @param {object} [details={}] - Structured data relevant to the event.
+     * @param {string} [regionId='unknown'] - The ID or Name of the Region/Element where event occurred.
+     */</span>
+    <span class="js-keyword">async</span> <span class="js-function">function</span> logEvent_Doc(type, description, details = {}, regionId = <span class="js-string">'unknown'</span>) {
+      <span class="js-keyword">const</span> logEntry = {
+        timestamp: Date.now(),
+        type: type,
+        regionId: regionId,
+        description: description,
+        details: details
+      };
+      console.log(<span class="js-string">`🔴 LOG (Doc) [${type}] [${regionId}]: ${description}`</span>, details);
+      <span class="js-keyword">if</span> (<span class="js-keyword">typeof</span> MCP_Memory_Documentation !== <span class="js-string">'undefined'</span> &amp;&amp; <span class="js-keyword">typeof</span> MCP_Memory_Documentation.storeLogEntry !== <span class="js-string">'undefined'</span>) {
+         <span class="js-comment">// await MCP_Memory_Documentation.storeLogEntry(logEntry); // Conceptual: Real storage call</span>
+      } <span class="js-keyword">else</span> {
+         console.warn(<span class="js-string">`🔴 LOG (Doc) [${type}]: MCP_Memory_Documentation not available for persistent logging.`</span>);
+      }
+    }
+    window.logEvent_Documentation = logEvent_Doc; <span class="js-comment">// Expose for doc snippets</span>
+    console.log(<span class="js-string">"🔴 Logging (Doc): Conceptual 'logEvent_Documentation' function available."</span>);
+  })();
+&lt;/script&gt;
+&lt;!-- &lt;span class="leeway-comment leeway-comment-red"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🔴 END: Logging - Core Function --&gt;&lt;/span&gt;</code></pre>
+                    <h3>Why Adhering to Logging Standards is Mandatory</h3>
+                    <p>Rapid Debugging, Enhanced AI Analysis, Clear Audit Trail, Improved Collaboration, Visibility into System Health.</p>
+                    <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Logging Flow (Event -> logEvent() -> MCP-Memory/IndexedDB)">Diagram: Event -&gt; logEvent() -&gt; MCP-Memory/IndexedDB</div>
+                    <div class="visual-placeholder" data-type="visual" data-description="Visual: Example Log Entries in a Table or List">Visual: Example Log Entries Table</div>
+                </div>
+            </section>
+
+            <section id="advanced-topics-in-code-documentation" class="page-section">
+                <h1 class="section-title">📚 In-Code Documentation Rules</h1>
+                <div class="doc-content">
+                     <h2>📚 In-Code Documentation Rules: Code That Explains Itself – Documentation as a First-Class Citizen</h2>
+                    <p>In traditional software development, documentation is often treated as a separate task. In LEEWAY™, <strong>In-Code Documentation</strong> is a mandatory principle. Clear, concise explanations are written &lt;em&gt;alongside&lt;/em&gt; the code they describe, using standardized comment formats. This creates a codebase that is inherently self-documenting for both humans and AI agents.</p>
+                    <h3>The LEEWAY™ Standard for In-Code Documentation</h3>
+                    <ol>
+                        <li><strong>Document Every Region:</strong> High-level overview, purpose, contents, role.</li>
+                        <li><strong>Document Every Function and Class:</strong> Purpose, parameters, return value, dependencies, semantic references. JSDoc-like syntax is encouraged.</li>
+                        <li><strong>Document Complex Logic Blocks:</strong> Explain specific, distinct steps.</li>
+                        <li><strong>Use Standard Comment Formats.</strong></li>
+                        <li><strong>Reference LEEWAY Principles:</strong> Colors, Tags, Regions.</li>
+                        <li><strong>Keep it Concise and Accurate.</strong></li>
+                    </ol>
+                    <h3>Examples of In-Code Documentation</h3>
+                    <pre class="leeway-code-green"><code class="language-html">&lt;!-- &lt;span class="leeway-comment leeway-comment-green"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟢 START: Core - Router | @type: Controller | @status: Active | @tech: JS/HistoryAPI | @desc: Manages in-page navigation using History API. --&gt;&lt;/span&gt;
+&lt;script id="core-router-script-doc"&gt;
+  <span class="js-comment">/**
+   * &lt;span class="leeway-comment leeway-comment-green"&gt;🟢 Purpose: Manages client-side routing for the single-page app.
+   * &lt;/span&gt;&lt;span class="leeway-comment leeway-comment-green"&gt;🟢 Behavior: Intercepts link clicks, updates browser history, and loads/shows relevant content regions.
+   * &lt;/span&gt;&lt;span class="leeway-comment leeway-comment-green"&gt;🟢 Depends On: Modular Regions (for targeting content blocks by ID).
+   * &lt;/span&gt;*/</span>
+  <span class="js-keyword">const</span> AppRouter_Doc = (() =&gt; {
+    <span class="js-comment">// Stores mapping of routes to region IDs</span>
+    <span class="js-keyword">const</span> routes = { <span class="js-string">'/'</span>: <span class="js-string">'home-section'</span>, <span class="js-string">'/products'</span>: <span class="js-string">'product-list-section'</span> };
+    <span class="js-comment">/**
+     * &lt;span class="leeway-comment leeway-comment-green"&gt;🟢 Purpose: Initializes the router and handles initial load.
+     * &lt;/span&gt;*/</span>
+    <span class="js-function">function</span> init() { console.log(<span class="js-string">"🟢 Router (Doc): Initialized."</span>); }
+    <span class="js-comment">/**
+     * &lt;span class="leeway-comment leeway-comment-green"&gt;🟢 Purpose: Navigates to a new internal route.
+     * &lt;/span&gt;@param {string} path - The URL path to navigate to.
+     * @param {boolean} pushState - Whether to add the path to browser history.
+     */</span>
+    <span class="js-function">function</span> navigate(path, pushState = <span class="js-boolean">true</span>) {
+      console.log(<span class="js-string">`🟢 Router (Doc): Navigating to ${path}`</span>);
+      <span class="js-comment">// if (typeof logEvent_Documentation !== 'undefined') {</span>
+      <span class="js-comment">//     logEvent_Documentation('NAVIGATION', 'User navigated', { path: path }, 'core-router-script-doc');</span>
+      <span class="js-comment">// }</span>
+    }
+    <span class="js-keyword">return</span> { init, navigate };
+  })();
+  <span class="js-comment">// document.addEventListener('DOMContentLoaded', AppRouter_Doc.init);</span>
+&lt;/script&gt;
+&lt;!-- &lt;span class="leeway-comment leeway-comment-green"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟢 END: Core - Router --&gt;&lt;/span&gt;</code></pre>
+                    <pre class="leeway-code-purple"><code class="language-html">&lt;!-- &lt;span class="leeway-comment leeway-comment-purple"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟣 START: MCP - Memory | @type: Module | @status: Active | @tech: JS/IndexedDB | @desc: Manages local data storage &amp; recall. --&gt;&lt;/span&gt;
+&lt;script id="mcp-memory-script-doc-example"&gt;
+  <span class="js-comment">// **LEEWAY™ MCP-Memory Implementation**</span>
+  <span class="js-comment">// Leverages IndexedDB for structured, persistent storage.</span>
+  <span class="js-keyword">const</span> MCP_Memory_Example = (() =&gt; {
+    <span class="js-comment">/**
+     * &lt;span class="leeway-comment leeway-comment-purple"&gt;🟣 Purpose: Initializes the IndexedDB database. &lt;/span&gt;
+     * @returns {Promise&lt;IDBDatabase&gt;}
+     */</span>
+    <span class="js-keyword">async</span> <span class="js-function">function</span> initDB() { <span class="js-comment">/* ... conceptual implementation ... */</span> }
+    <span class="js-comment">/**
+     * &lt;span class="leeway-comment leeway-comment-purple"&gt;🟣 Purpose: Stores a key-value pair in IndexedDB.&lt;/span&gt;
+     * @param {string} key 
+     * @param {*} value 
+     * @returns {Promise&lt;boolean&gt;}
+     */</span>
+    <span class="js-keyword">async</span> <span class="js-function">function</span> store(key, value) { <span class="js-comment">/* ... conceptual ... */</span> }
+    <span class="js-keyword">return</span> { init: initDB, store };
+  })();
+&lt;/script&gt;
+&lt;!-- &lt;span class="leeway-comment leeway-comment-purple"&gt;&lt;!-- &lt;/span&gt;&lt;span class="leeway-comment"&gt;🟣 END: MCP - Memory --&gt;&lt;/span&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="core-principles-modularization" class="page-section">
+                <h1 class="section-title">🧩 Modularization</h1>
+                <div class="doc-content">
+                    <h2>🧩 Modularization: Building with Regions – The Backbone of Structure</h2>
+                     <p>Modularization is a core LEEWAY principle ensuring that a single HTML file doesn&apos;t become an unmanageable monolith. It dictates that the codebase is broken down into distinct, self-contained <strong>Regions</strong>.</p>
+                     <p>Each Region is defined by explicit HTML comments (<code>&lt;!-- START: RegionName --&gt;</code> and <code>&lt;!-- END: RegionName --&gt;</code>) and often corresponds to a specific functional unit (like a UI component, an MCP, or a core logic block). This allows developers (and AI agents) to quickly identify, navigate, and work on specific parts of the application without affecting others, despite everything being in one file.</p>
+                     <p>Modularization works in harmony with Colorization and Semantic Tagging to make the single file structured, readable, and maintainable.</p>
+                    <div class="visual-placeholder" data-type="diagram" data-description="Diagram: Shows large file broken into smaller, labeled regions.">Diagram: Large File -&gt; Boxed Regions (labeled)</div>
+                </div>
+            </section>
+
+            <section id="core-principles-colorization" class="page-section">
+                <h1 class="section-title">🎨 Colorization</h1>
+                <div class="doc-content">
+                    <h2>🎨 Colorization: The Visual Language – Instant Code Recognition</h2>
+                     <p>Colorization is the visual layer of the LEEWAY Standard. It assigns specific colors to different types of Regions based on their function or purpose. This provides an instant visual cue in a supported code editor (like VS Code with the LEEWAY extension), allowing developers and AI agents to quickly understand the nature of a code block at a glance.</p>
+                     <p>The standard LEEWAY color spectrum includes:</p>
+                     <ul>
+                         <li><strong class="leeway-comment leeway-comment-green">🟢 Green:</strong> Core application logic, controllers, main data flow.</li>
+                         <li><strong class="leeway-comment leeway-comment-blue">🔵 Blue:</strong> User Interface components and logic, rendering, interaction handling.</li>
+                         <li><strong class="leeway-comment leeway-comment-purple">🟣 Purple:</strong> MCP (Memory, Communication, Processing) components and AI/WASM related logic.</li>
+                         <li><strong class="leeway-comment leeway-comment-red">🔴 Red:</strong> SEO, Analytics, Error Handling, Critical System Alerts.</li>
+                         <li><strong class="leeway-comment leeway-comment-yellow">🟡 Yellow:</strong> Theming, Styling, Global CSS, Design Tokens.</li>
+                         <li><strong class="leeway-comment leeway-comment-orange">🟠 Orange:</strong> Utility functions, External service integrations, API bridges, Build/Dev Ops related logic (if embedded).</li>
+                     </ul>
+                     <p>This visual language significantly enhances navigation and comprehension within the single file.</p>
+                    <div class="visual-placeholder" data-type="visual" data-description="Visual: Shows code blocks with different color highlights corresponding to the LEEWAY spectrum.">Visual: Color-coded Code Blocks (Green, Blue, Purple, Red, Yellow, Orange)</div>
+                </div>
+            </section>
+
+            <section id="core-principles-semantic-tagging" class="page-section">
+                <h1 class="section-title">🧠 Semantic Tagging</h1>
+                <div class="doc-content">
+                    <h2>🧠 Semantic Tagging: Meaningful Elements – Powering Humans and AI</h2>
+                     <p>Semantic Tagging ensures that key elements and Regions within the HTML structure have clear, descriptive identities. This is primarily achieved through the mandatory use of the HTML <code>id</code> attribute on relevant container elements (&lt;section&gt;, &lt;div&gt;, &lt;script&gt;, &lt;style&gt;) and the use of ARIA attributes for accessibility.</p>
+                     <ul>
+                         <li><strong>Descriptive IDs:</strong> Unique, human-readable IDs like <code>product-list-section</code>, <code>user-profile-form</code>, <code>mcp-memory-script</code>. These provide explicit anchors for navigation (via <code>#id</code> links) and allow AI agents to target specific parts of the UI or code logic precisely.</li>
+                         <li><strong>ARIA Attributes:</strong> Using ARIA roles and labels (<code>role="button"</code>, <code>aria-label="Close dialog"</code>) enhances accessibility for screen readers and provides additional semantic context for machines, including crawlers and AI.</li>
+                         <li><strong>Integration with JSON-LD:</strong> Semantic tags in the HTML structure often correspond to entities described in embedded JSON-LD, linking structured data directly to the content it describes.</li>
+                     </ul>
+                     <p>Semantic Tagging makes the application structure machine-readable and enhances discoverability and interaction capabilities for both users and intelligent agents.</p>
+                    <div class="visual-placeholder" data-type="visual" data-description="Visual: Shows HTML snippets with descriptive IDs and ARIA attributes.">Visual: HTML Snippets with `id="..."` and `aria-...`</div>
+                </div>
+            </section>
+
+            <section id="quickstart-guide" class="page-section">
+                <h1 class="section-title">🚀 Quick Start Guide (Conceptual)</h1>
+                <div class="doc-content">
+                    <h2>🚀 Quick Start Guide (Conceptual)</h2>
+                    <p>A conceptual quick start guide would outline the fastest way to begin building a LEEWAY application, likely involving a basic template and instructions on creating the first few regions.</p>
+                     <ol>
+                        <li><strong>Understand Core Principles:</strong> Familiarize yourself with Modularization, Colorization, Semantic Tagging, and File Embedding.</li>
+                        <li><strong>Start with a Template:</strong> Use a basic HTML file with placeholders for <code>&lt;head&gt;</code>, main <code>&lt;style&gt;</code> block (<span class="leeway-comment leeway-comment-yellow">🟡</span>), and initial <code>&lt;body&gt;</code> structure.</li>
+                        <li><strong>Define Main Regions:</strong> Create comment-delimited regions for UI Header (<span class="leeway-comment leeway-comment-blue">🔵</span>), Sidebar (<span class="leeway-comment leeway-comment-blue">🔵</span>), Main Content (<span class="leeway-comment leeway-comment-blue">🔵</span>), and Core Logic (<span class="leeway-comment leeway-comment-green">🟢</span>).</li>
+                        <li><strong>Embed Basic CSS:</strong> Add global styles within your <span class="leeway-comment leeway-comment-yellow">🟡 Theme</span> region.</li>
+                        <li><strong>Implement Core Logic:</strong> Write initial JavaScript in your <span class="leeway-comment leeway-comment-green">🟢 Core</span> script region.</li>
+                        <li><strong>Add MCP Placeholders:</strong> Create comment blocks for <span class="leeway-comment leeway-comment-purple">🟣 MCPs</span> (Memory, Communication, etc.).</li>
+                        <li><strong>Iterate and Validate:</strong> Continuously add content, refine UI, and implement MCPs, ensuring adherence to LEEWAY standards.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section id="artifact-tool-handlers-ps1" class="page-section">
+                <h1 class="section-title">Artifact: Tool Handler (PowerShell: <code>tool-handlers.ps1</code>)</h1>
+                <div class="doc-content">
+                    <p>This is the source code for the PowerShell script that acts as a bridge between the LEEWAY core and desktop/CLI tools in Windows environments.</p>
+                    <pre class="leeway-code-orange"><code class="language-powershell"><span ps-comment=""># LEEWAY™ PowerShell Tool Handler</span>
+<span class="ps-comment"># Acts as a bridge to execute desktop/CLI tools defined in leeway-protocol.json via PowerShell.</span>
+<span class="ps-comment"># Designed to be called from the AI/tooling layer with specific command structures.</span>
+
+param(
+    [<span class="ps-keyword">string</span>]<span class="ps-variable">$toolName</span><span class="ps-operator">,</span>
+    [<span class="ps-keyword">string</span>]<span class="ps-variable">$toolArgsJson</span>
+)
+
+<span class="ps-comment"># Standard function to write structured output</span>
+<span class="ps-keyword">function</span> <span class="ps-command">Write-LeeWayOutput</span> {
+    param(
+        [<span class="ps-keyword">string</span>]<span class="ps-variable">$status</span><span class="ps-operator">,</span> <span class="ps-comment"># 'success' or 'error'</span>
+        [<span class="ps-keyword">string</span>]<span class="ps-variable">$message</span><span class="ps-operator">,</span>
+        [<span class="ps-keyword">object</span>]<span class="ps-variable">$data</span> <span class="ps-operator">=</span> <span class="ps-variable">$null</span><span class="ps-operator">,</span>
+        [<span class="ps-keyword">hashtable</span>]<span class="ps-variable">$metadata</span> <span class="ps-operator">=</span> @{}
+    )
+    <span class="ps-variable">$output</span> <span class="ps-operator">=</span> @{
+        status <span class="ps-operator">=</span> <span class="ps-variable">$status</span>
+        message <span class="ps-operator">=</span> <span class="ps-variable">$message</span>
+        data <span class="ps-operator">=</span> <span class="ps-variable">$data</span>
+        metadata <span class="ps-operator">=</span> <span class="ps-variable">$metadata</span>
+    }
+    <span class="ps-command">ConvertTo-Json</span> <span class="ps-variable">$output</span> <span class="ps-param">-Depth</span> <span class="ps-number">100</span>
+}
+
+<span class="ps-comment"># Error handling function</span>
+<span class="ps-keyword">function</span> <span class="ps-command">Handle-ToolError</span> {
+    param(
+        [<span class="ps-keyword">string</span>]<span class="ps-variable">$tool</span><span class="ps-operator">,</span>
+        [<span class="ps-keyword">string</span>]<span class="ps-variable">$errorMessage</span><span class="ps-operator">,</span>
+        [<span class="ps-keyword">string</span>]<span class="ps-variable">$errorDetails</span> <span class="ps-operator">=</span> <span class="ps-string">"No details provided"</span><span class="ps-operator">,</span>
+        [<span class="ps-keyword">int</span>]<span class="ps-variable">$exitCode</span> <span class="ps-operator">=</span> <span class="ps-number">1</span>
+    )
+    <span class="ps-command">Write-Error</span> <span class="ps-string">"LEEWAY Error in tool [$tool]: $errorMessage. Details: $errorDetails"</span>
+    <span class="ps-command">Write-LeeWayOutput</span> <span class="ps-param">-status</span> <span class="ps-string">"error"</span> <span class="ps-param">-message</span> <span class="ps-string">"Tool execution failed"</span> <span class="ps-param">-data</span> @{
+        tool <span class="ps-operator">=</span> <span class="ps-variable">$tool</span>
+        errorMessage <span class="ps-operator">=</span> <span class="ps-variable">$errorMessage</span>
+        errorDetails <span class="ps-operator">=</span> <span class="ps-variable">$errorDetails</span>
+    } <span class="ps-param">-metadata</span> @{ exitCode <span class="ps-operator">=</span> <span class="ps-variable">$exitCode</span> }
+    <span class="ps-command">exit</span> <span class="ps-variable">$exitCode</span>
+}
+
+<span class="ps-comment"># Parse tool arguments from JSON</span>
+<span class="ps-keyword">try</span> {
+    <span class="ps-variable">$toolArgs</span> <span class="ps-operator">=</span> <span class="ps-variable">$null</span>
+    <span class="ps-keyword">if</span> (<span class="ps-param">-not</span> [<span class="ps-keyword">string</span>]<span class="ps-operator">::</span>IsNullOrEmpty(<span class="ps-variable">$toolArgsJson</span>)) {
+        <span class="ps-variable">$toolArgs</span> <span class="ps-operator">=</span> <span class="ps-command">ConvertFrom-Json</span> <span class="ps-variable">$toolArgsJson</span>
+    }
+} <span class="ps-keyword">catch</span> {
+    <span class="ps-command">Handle-ToolError</span> <span class="ps-param">-tool</span> <span class="ps-string">"parse-args"</span> <span class="ps-param">-errorMessage</span> <span class="ps-string">"Failed to parse tool arguments JSON"</span> <span class="ps-param">-errorDetails</span> <span class="ps-variable">$_</span><span class="ps-operator">.</span>Exception<span class="ps-operator">.</span>Message
+}
+
+<span class="ps-command">Write-Host</span> <span class="ps-string">"LEEWAY PS Handler received: Tool='$toolName', Args='$toolArgsJson'"</span>
+
+<span class="ps-comment"># --- TOOL IMPLEMENTATIONS --- (Full content from leewaystandard.txt.html for each tool)</span>
+
+<span class="ps-comment"># 1. log-message</span>
+<span class="ps-keyword">if</span> (<span class="ps-variable">$toolName</span> <span class="ps-operator">-eq</span> <span class="ps-string">"log-message"</span>) { <span class="ps-comment"># ... FULL ESCAPED log-message PowerShell code ...</span> }
+<span class="ps-comment"># 2. write-file</span>
+<span class="ps-keyword">if</span> (<span class="ps-variable">$toolName</span> <span class="ps-operator">-eq</span> <span class="ps-string">"write-file"</span>) { <span class="ps-comment"># ... FULL ESCAPED write-file PowerShell code ...</span> }
+<span class="ps-comment"># ... ALL OTHER PowerShell tool implementations (multi-git-sync, restore-index, etc.)</span>
+<span class="ps-keyword">if</span> (<span class="ps-variable">$toolName</span> <span class="ps-operator">-eq</span> <span class="ps-string">"desktop-search"</span>) { <span class="ps-comment"># ... FULL ESCAPED desktop-search PowerShell code ...</span> }
+
+<span class="ps-comment"># --- DEFAULT / FALLBACK ---</span>
+<span class="ps-command">Handle-ToolError</span> <span class="ps-param">-tool</span> <span class="ps-variable">$toolName</span> <span class="ps-param">-errorMessage</span> <span class="ps-string">"Unknown tool requested."</span> <span class="ps-param">-exitCode</span> <span class="ps-number">1</span>
+</code></pre>
+                </div>
+            </section>
+
+            <section id="artifact-tool-handlers-js" class="page-section">
+                <h1 class="section-title">Artifact: Tool Handler (JavaScript: <code>tool-handlers.js</code>)</h1>
+                <div class="doc-content">
+                    <p>This is the source code for the JavaScript (Node.js) script that handles certain LEEWAY tools, acting as a bridge in Node.js environments.</p>
+                    <pre class="leeway-code-orange"><code class="language-javascript"><span class="js-comment">// LEEWAY™ JavaScript Tool Handler</span>
+<span class="js-comment">// Executes desktop/CLI tools defined in leeway-protocol.json via Node.js.</span>
+<span class="js-comment">// Designed to be called from the AI/tooling layer or CLI wrappers.</span>
+
+<span class="js-keyword">const</span> fs <span class="js-operator">=</span> require(<span class="js-string">'fs'</span>);
+<span class="js-keyword">const</span> path <span class="js-operator">=</span> require(<span class="js-string">'path'</span>);
+
+<span class="js-comment">// Standard function to write structured output</span>
+<span class="js-function">function</span> writeLeeWayOutput(status, message, data = <span class="js-null">null</span>, metadata = {}) {
+    <span class="js-keyword">const</span> output = { status, message, data, metadata };
+    console.log(JSON.stringify(output, <span class="js-null">null</span>, <span class="js-number">2</span>));
+}
+
+<span class="js-comment">// Error handling function</span>
+<span class="js-function">function</span> handleToolError(tool, errorMessage, errorDetails = <span class="js-string">"No details provided"</span>, exitCode = <span class="js-number">1</span>) {
+    console.error(<span class="js-string">`LEEWAY Error in tool [${tool}]: ${errorMessage}. Details: ${errorDetails}`</span>);
+    writeLeeWayOutput(<span class="js-string">"error"</span>, <span class="js-string">"Tool execution failed"</span>, { tool, errorMessage, errorDetails }, { exitCode });
+    process.exit(exitCode);
+}
+
+<span class="js-comment">// Parse command-line arguments</span>
+<span class="js-keyword">const</span> args = process.argv.slice(<span class="js-number">2</span>);
+<span class="js-keyword">const</span> toolName = args[<span class="js-number">0</span>];
+<span class="js-keyword">let</span> toolArgsJson = args[<span class="js-number">1</span>];
+<span class="js-keyword">let</span> toolArgs = {};
+
+<span class="js-keyword">try</span> {
+    <span class="js-keyword">if</span> (toolArgsJson) {
+        toolArgs = JSON.parse(toolArgsJson);
+    }
+} <span class="js-keyword">catch</span> (e) {
+    handleToolError(<span class="js-string">"parse-args"</span>, <span class="js-string">"Failed to parse tool arguments JSON"</span>, e.message);
+}
+
+console.log(<span class="js-string">`LEEWAY JS Handler received: Tool='${toolName}', Args='${toolArgsJson}'`</span>);
+
+<span class="js-comment">// --- TOOL IMPLEMENTATIONS ---</span>
+
+<span class="js-comment">// 1. log-message</span>
+<span class="js-keyword">if</span> (toolName === <span class="js-string">"log-message"</span>) { <span class="js-comment">// ... FULL ESCAPED log-message JS code ... </span> }
+
+<span class="js-comment">// 2. write-json</span>
+<span class="js-keyword">if</span> (toolName === <span class="js-string">"write-json"</span>) { <span class="js-comment">// ... FULL ESCAPED write-json JS code ... </span> }
+
+<span class="js-comment">// --- DEFAULT / FALLBACK ---</span>
+handleToolError(toolName, <span class="js-string">"Unknown tool requested."</span>, <span class="js-null">null</span>, <span class="js-number">1</span>);
+</code></pre>
+                </div>
+            </section>
+
+            <section id="artifact-leeway-protocol-json" class="page-section">
+                <h1 class="section-title">Artifact: Protocol Definition (<code>leeway-protocol.json</code>)</h1>
+                <div class="doc-content">
+                     <p>This JSON file defines the external tools available to the LEEWAY system and AI agents, specifying their names, handlers (PowerShell or JavaScript), and command structures.</p>
+                    <pre class="leeway-code-orange"><code class="language-json">{
+  <span class="json-key">"tools"</span>: [
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"log-message"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Logs a message to the system output or logging utility. Supports levels (info, warn, error) and structured details."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"write-file"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Writes provided content to a specified file path, overwriting if it exists. Uses UTF-8 encoding."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"write-json"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"JavaScript"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.js"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Writes a provided JSON object to a specified file path, formatting it with indentation."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"multi-git-sync"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Executes a script to synchronize multiple local Git repositories (fetch/pull)."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"restore-index"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Restores the main application index file from a specified backup file."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"safe-write"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Writes content to a file, first creating a timestamped backup of the original file if it exists."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"telegram-agent"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Sends messages or interacts with a configured Telegram bot via an intermediary script."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"voice-link"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Uses a local text-to-speech (TTS) system or voice service via an intermediary script to vocalize text."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"twilio-call"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Initiates a phone call via the Twilio API using a local script."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"desktop-config"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Manages local desktop configuration settings (e.g., registry, environment variables, application settings) via a TypeScript script."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"desktop-edit"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Performs structured editing or manipulation of local files (e.g., code, config files) via a TypeScript script."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"desktop-execute"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Executes arbitrary commands on the local desktop environment via a TypeScript script. Requires user consent and strict sandboxing."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"desktop-filesystem"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Performs basic file system operations (read, copy, move, delete, list) on the local desktop via a TypeScript script."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"desktop-process"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Manages local desktop processes (list, kill, check status) via a TypeScript script."</span>
+    },
+    {
+      <span class="json-key">"toolName"</span>: <span class="json-string">"desktop-search"</span>,
+      <span class="json-key">"handler"</span>: <span class="json-string">"PowerShell"</span>,
+      <span class="json-key">"command"</span>: <span class="json-string">"./tool-handlers.ps1"</span>,
+      <span class="json-key">"args"</span>: <span class="json-string">"$toolName $toolArgsJson"</span>,
+      <span class="json-key">"description"</span>: <span class="json-string">"Performs full-text or metadata search on local files and content via a TypeScript script."</span>
+    }
+  ],
+  <span class="json-key">"handlers"</span>: {
+    <span class="json-key">"PowerShell"</span>: <span class="json-string">"powershell -ExecutionPolicy Bypass -File"</span>,
+    <span class="json-key">"JavaScript"</span>: <span class="json-string">"node"</span>
+  }
+}
+</code></pre>
+                </div>
+            </section>
+
+            <section id="artifact-vscode-extension-package-json" class="page-section">
+                <h1 class="section-title">Artifact: VS Code Ext (<code>package.json</code>)</h1>
+                <div class="doc-content">
+                    <p>This file contains the manifest for the LEEWAY VS Code extension, which provides visual highlighting and optional dynamic effects for LEEWAY regions in the editor.</p>
+                    <pre class="leeway-code-orange"><code class="language-json">{
+  <span class="json-key">"name"</span>: <span class="json-string">"leeway-glow-extension"</span>,
+  <span class="json-key">"displayName"</span>: <span class="json-string">"LEEWAY Glowing Code Extension"</span>,
+  <span class="json-key">"description"</span>: <span class="json-string">"Automatically applies glowing, animated LEEWAY-standard colorization to code regions."</span>,
+  <span class="json-key">"version"</span>: <span class="json-string">"1.0.0"</span>,
+  <span class="json-key">"publisher"</span>: <span class="json-string">"leeway"</span>,
+  <span class="json-key">"engines"</span>: { <span class="json-key">"vscode"</span>: <span class="json-string">"^1.80.0"</span> },
+  <span class="json-key">"activationEvents"</span>: [<span class="json-string">"onLanguage:html"</span>, <span class="json-string">"onStartupFinished"</span>],
+  <span class="json-key">"main"</span>: <span class="json-string">"./extension.js"</span>,
+  <span class="json-key">"contributes"</span>: {
+    <span class="json-key">"configuration"</span>: {
+      <span class="json-key">"title"</span>: <span class="json-string">"LEEWAY Extension Settings"</span>,
+      <span class="json-key">"properties"</span>: {
+        <span class="json-key">"leeway.enableAnimations"</span>: {
+          <span class="json-key">"type"</span>: <span class="json-string">"boolean"</span>,
+          <span class="json-key">"default"</span>: <span class="json-boolean">true</span>,
+          <span class="json-key">"description"</span>: <span class="json-string">"Enable glowing rainbow animations for LEEWAY regions."</span>
+        }
+      }
+    }
+  }
+}
+</code></pre>
+                </div>
+            </section>
+
+            <section id="artifact-vscode-extension-extension-js" class="page-section">
+                <h1 class="section-title">Artifact: VS Code Ext (<code>extension.js</code>)</h1>
+                <div class="doc-content">
+                     <p>This is the core JavaScript logic for the LEEWAY VS Code extension, responsible for parsing LEEWAY regions and applying editor decorations.</p>
+                    <pre class="leeway-code-orange"><code class="language-javascript"><span class="js-keyword">const</span> vscode = require(<span class="js-string">'vscode'</span>);
+
+<span class="js-function">function</span> activate(context) {
+  <span class="js-keyword">const</span> regionDecorationTypes = {
+    <span class="js-string">"core"</span>: createDecoration(<span class="js-string">'rgba(57, 255, 20, 0.1)'</span>, <span class="js-string">'0 0 8px rgba(57, 255, 20, 0.8)'</span>),
+    <span class="js-string">"ui"</span>: createDecoration(<span class="js-string">'rgba(0, 191, 255, 0.1)'</span>, <span class="js-string">'0 0 8px rgba(0, 191, 255, 0.8)'</span>),
+    <span class="js-string">"seo"</span>: createDecoration(<span class="js-string">'rgba(255, 0, 0, 0.1)'</span>, <span class="js-string">'0 0 8px rgba(255, 0, 0, 0.8)'</span>),
+    <span class="js-string">"utility"</span>: createDecoration(<span class="js-string">'rgba(255, 127, 0, 0.1)'</span>, <span class="js-string">'0 0 8px rgba(255, 127, 0, 0.8)'</span>),
+    <span class="js-string">"mcp"</span>: createDecoration(<span class="js-string">'rgba(224, 64, 251, 0.1)'</span>, <span class="js-string">'0 0 8px rgba(224, 64, 251, 0.8)'</span>),
+    <span class="js-string">"theme"</span>: createDecoration(<span class="js-string">'rgba(255, 255, 0, 0.1)'</span>, <span class="js-string">'0 0 8px rgba(255, 255, 0, 0.8)'</span>)
+  };
+
+  <span class="js-function">function</span> createDecoration(backgroundColor, textShadow) {
+    <span class="js-keyword">return</span> vscode.window.createTextEditorDecorationType({
+      backgroundColor,
+      <span class="js-string">"after"</span>: { <span class="js-string">"contentText"</span>: <span class="js-string">''</span>, <span class="js-string">"margin"</span>: <span class="js-string">'0 0 0 3px'</span>, <span class="js-string">"color"</span>: <span class="js-string">'transparent'</span>, <span class="js-string">"textDecoration"</span>: <span class="js-string">`none; text-shadow: ${textShadow};`</span> },
+      <span class="js-string">"isWholeLine"</span>: <span class="js-boolean">false</span>
+    });
+  }
+
+  <span class="js-function">function</span> applyDecorations(editor) {
+    <span class="js-keyword">if</span> (!editor) <span class="js-keyword">return</span>;
+    <span class="js-keyword">const</span> text = editor.document.getText();
+    <span class="js-keyword">const</span> regions = parseLeewayRegions(text);
+    Object.keys(regionDecorationTypes).forEach(key =&gt; {
+      editor.setDecorations(regionDecorationTypes[key], regions[key] || []);
+    });
+  }
+
+  <span class="js-function">function</span> parseLeewayRegions(text) {
+    <span class="js-keyword">const</span> lines = text.split(<span class="js-regexp">/\r?\n/</span>);
+    <span class="js-keyword">const</span> regions = { core: [], ui: [], seo: [], utility: [], mcp: [], theme: [] };
+    <span class="js-keyword">let</span> currentRegion = <span class="js-null">null</span>; <span class="js-keyword">let</span> regionStart = <span class="js-number">0</span>;
+
+    lines.forEach((line, i) =&gt; {
+      <span class="js-keyword">const</span> regionStartMatch = line.match(<span class="js-regexp">/&lt;!-- (?:🟢 START: Core|🟣 START: MCP|🔵 START: UI|🟠 START: Utility|🔴 START: SEO|🟡 START: Theme) --&gt;/i</span>);
+      <span class="js-keyword">const</span> regionEndMatch = line.match(<span class="js-regexp">/&lt;!-- .* END: --&gt;/i</span>);
+
+      <span class="js-keyword">if</span> (regionStartMatch) {
+        regionStart = i;
+        <span class="js-keyword">if</span> (<span class="js-regexp">/🟢/</span>.test(line)) currentRegion = <span class="js-string">'core'</span>;
+        <span class="js-keyword">else</span> <span class="js-keyword">if</span> (<span class="js-regexp">/🟣/</span>.test(line)) currentRegion = <span class="js-string">'mcp'</span>;
+        <span class="js-keyword">else</span> <span class="js-keyword">if</span> (<span class="js-regexp">/🔵/</span>.test(line)) currentRegion = <span class="js-string">'ui'</span>;
+        <span class="js-keyword">else</span> <span class="js-keyword">if</span> (<span class="js-regexp">/🟠/</span>.test(line)) currentRegion = <span class="js-string">'utility'</span>;
+        <span class="js-keyword">else</span> <span class="js-keyword">if</span> (<span class="js-regexp">/🔴/</span>.test(line)) currentRegion = <span class="js-string">'seo'</span>;
+        <span class="js-keyword">else</span> <span class="js-keyword">if</span> (<span class="js-regexp">/🟡/</span>.test(line)) currentRegion = <span class="js-string">'theme'</span>;
+      } <span class="js-keyword">else</span> <span class="js-keyword">if</span> (regionEndMatch &amp;&amp; currentRegion) {
+        <span class="js-keyword">const</span> range = <span class="js-keyword">new</span> vscode.Range(regionStart, <span class="js-number">0</span>, i, lines[i].length);
+        regions[currentRegion].push({ range });
+        currentRegion = <span class="js-null">null</span>;
+      }
+    });
+    <span class="js-keyword">return</span> regions;
+  }
+
+  vscode.window.onDidChangeActiveTextEditor(editor =&gt; applyDecorations(editor), <span class="js-null">null</span>, context.subscriptions);
+  vscode.workspace.onDidChangeTextDocument(event =&gt; applyDecorations(vscode.window.activeTextEditor), <span class="js-null">null</span>, context.subscriptions);
+  applyDecorations(vscode.window.activeTextEditor);
+
+  <span class="js-keyword">if</span> (vscode.workspace.getConfiguration(<span class="js-string">'leeway'</span>).get(<span class="js-string">'enableAnimations'</span>)) {
+    animateColors(regionDecorationTypes);
+  }
+}
+
+<span class="js-function">function</span> animateColors(regionDecorationTypes) {
+  <span class="js-keyword">let</span> hue = <span class="js-number">0</span>;
+  setInterval(() =&gt; {
+    hue = (hue + <span class="js-number">1</span>) % <span class="js-number">360</span>;
+    Object.values(regionDecorationTypes).forEach(deco =&gt; deco.dispose());
+    regionDecorationTypes.core = createAnimatedDecoration(hue);
+    regionDecorationTypes.ui = createAnimatedDecoration(hue + <span class="js-number">60</span>);
+    regionDecorationTypes.seo = createAnimatedDecoration(hue + <span class="js-number">120</span>);
+    regionDecorationTypes.utility = createAnimatedDecoration(hue + <span class="js-number">180</span>);
+    regionDecorationTypes.mcp = createAnimatedDecoration(hue + <span class="js-number">240</span>);
+    regionDecorationTypes.theme = createAnimatedDecoration(hue + <span class="js-number">300</span>);
+    applyDecorations(vscode.window.activeTextEditor);
+  }, <span class="js-number">5000</span>); <span class="js-comment">// Reduced interval for more noticeable effect, adjust as needed</span>
+}
+
+<span class="js-function">function</span> createAnimatedDecoration(hue) {
+  <span class="js-keyword">return</span> vscode.window.createTextEditorDecorationType({
+    backgroundColor: <span class="js-string">`hsla(${hue}, 100%, 50%, 0.05)`</span>,
+    <span class="js-string">"after"</span>: { <span class="js-string">"contentText"</span>: <span class="js-string">''</span>, <span class="js-string">"margin"</span>: <span class="js-string">'0 0 0 3px'</span>, <span class="js-string">"color"</span>: <span class="js-string">'transparent'</span>, <span class="js-string">"textDecoration"</span>: <span class="js-string">`none; text-shadow: 0 0 8px hsla(${hue}, 100%, 50%, 0.9);`</span> },
+    <span class="js-string">"isWholeLine"</span>: <span class="js-boolean">false</span>
+  });
+}
+<span class="js-function">function</span> deactivate() {}
+module.exports = { activate, deactivate };
+</code></pre>
+                </div>
+            </section>
+
+            <section id="artifact-vscode-extension-styles-css" class="page-section">
+                <h1 class="section-title">Artifact: VS Code Ext (<code>styles.css</code>)</h1>
+                 <div class="doc-content">
+                    <p>This file contains the optional <code>styles.css</code> for the LEEWAY VS Code extension. This CSS is designed to be injected into the VS Code editor DOM using a tool like the "Custom CSS and JS Loader" extension. It provides more advanced visual effects like pulsating glows and smooth rainbow animations on specific editor text tokens or elements, leveraging standard CSS <code>@keyframes</code>.</p>
+                    <pre class="leeway-code-orange"><code class="language-css"><span class="css-comment">/* VS Code Custom CSS for smooth glow and wave effects */</span>
+<span class="css-atrule">@keyframes</span> leewayGlow {
+  <span class="css-value">0%</span>, <span class="css-value">100%</span> { <span class="css-property">text-shadow</span>: <span class="css-value">0 0 6px</span>; }
+  <span class="css-value">50%</span> { <span class="css-property">text-shadow</span>: <span class="css-value">0 0 12px</span>; }
+}
+
+<span class="css-comment">/* Example: Apply to common token classes if desired */</span>
+<span class="css-selector">.mtk1</span>, <span class="css-selector">.mtk5</span>, <span class="css-selector">.mtk7</span> { <span class="css-comment">/* Adjust selectors based on actual VS Code token classes */</span>
+  <span class="css-property">animation</span>: leewayGlow <span class="css-value">6s</span> infinite ease-in-out;
+  <span class="css-property">background-clip</span>: text;
+  <span class="css-property">-webkit-background-clip</span>: text;
+  <span class="css-property">color</span>: transparent;
+  <span class="css-property">background-image</span>: linear-gradient(<span class="css-value">90deg</span>, red, orange, yellow, green, cyan, blue, violet);
+  <span class="css-property">background-size</span>: <span class="css-value">200% 200%</span>;
+  <span class="css-property">animation</span>: rainbowWave <span class="css-value">12s</span> infinite linear, leewayGlow <span class="css-value">6s</span> infinite ease-in-out; <span class="css-comment">/* Combine animations */</span>
+}
+
+<span class="css-atrule">@keyframes</span> rainbowWave {
+  <span class="css-value">0%</span> { <span class="css-property">background-position</span>: <span class="css-value">0% 50%</span>; }
+  <span class="css-value">100%</span> { <span class="css-property">background-position</span>: <span class="css-value">100% 50%</span>; }
+}
+</code></pre>
+                </div>
+            </section>
+
+            <section id="artifact-vscode-extension-readme-md" class="page-section">
+                <h1 class="section-title">Artifact: VS Code Ext (<code>README.md</code>)</h1>
+                <div class="doc-content">
+                    <p>This document contains the README file for the LEEWAY VS Code extension. It provides essential information on the extension&apos;s purpose, features, and installation/setup instructions for users who want to see the LEEWAY region highlighting directly in their VS Code editor.</p>
+                    <pre class="leeway-code-orange"><code class="language-markdown"><span class="md-heading"># LEEWAY Glowing Code Extension</span>
+
+This VS Code extension provides visual highlighting and optional dynamic effects for LEEWAY™ standardized code regions within your single HTML files. It helps developers and AI agents quickly identify and navigate different functional areas of the codebase based on their color-coded classifications (Core, UI, MCP, etc.).
+
+<span class="md-heading">## Features</span>
+
+*   **Region Colorization:** Applies distinct background colors or borders to code blocks identified as LEEWAY regions (🟢 Core, 🔵 UI, 🟣 MCP, 🔴 SEO/Analytics/Error, 🟡 Theme/Style, 🟠 Utility/External).
+*   **Simulated Glow Effect:** Adds a subtle visual glow effect to the region boundaries or text within the region.
+*   **Optional Animations:** If enabled, the region colors or glow effects can gently pulsate or cycle through hues, creating a "breathing" effect that makes the code feel more dynamic and alive.
+*   **Region Parsing:** Identifies regions based on standard LEEWAY HTML comment markers (`&lt;!-- 🟢 START: ... --&gt;`, `&lt;!-- END: ... --&gt;`).
+*   **No Build Required:** Works directly on your LEEWAY HTML files without needing any build process.
+
+<span class="md-heading">## Requirements</span>
+
+*   Visual Studio Code (version 1.80.0 or higher recommended)
+*   (Optional, for enhanced CSS glow) [Custom CSS and JS Loader](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css) extension installed and enabled.
+
+<span class="md-heading">## Installation</span>
+
+1.  **Install the extension:**
+    *   Open VS Code.
+    *   Go to the Extensions view (`Ctrl+Shift+X` or `Cmd+Shift+X`).
+    *   Search for "LEEWAY Glowing Code Extension" (or if distributing manually, install from a `.vsix` file).
+    *   Click **Install**.
+
+2.  **(Optional) For enhanced CSS glow effects:**
+    *   Install the `Custom CSS and JS Loader` extension from the marketplace.
+    *   Enable it by following its instructions (usually requires modifying VS Code settings and running a command).
+    *   Add the path to the provided `styles.css` file (located in the extension folder or your project repo if distributed there) to your VS Code `settings.json`:
+        <span class="md-code">```json
+        "vscode_custom_css.imports": [
+            "file:///path/to/your/leeway-styles.css" // Replace with the actual path
+        ],
+        "vscode_custom_css.disableExt": ["leeway-glow-extension"] // If you want CSS to handle ALL styling
+        ```</span>
+    *   Run the `Enable Custom CSS and JS` command in the VS Code Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`). **Note:** This makes your VS Code installation "unsupported" by Microsoft while active. You may need to re-enable it after VS Code updates.
+
+<span class="md-heading">## Usage</span>
+
+Once installed and active (either automatically on startup or when opening a `.html` file containing LEEWAY regions), the extension will automatically detect and highlight LEEWAY regions based on their start and end comment markers.
+
+The base colorization works out-of-the-box.
+
+To enable or disable the subtle animation effects, go to VS Code Settings (`Ctrl+,` or `Cmd+,`), search for "LEEWAY", and toggle the "Enable Animations" setting.
+
+<span class="md-heading">## Configuration</span>
+
+*   `leeway.enableAnimations`: Controls whether the region highlighting includes dynamic pulsating or color cycling effects (`boolean`, default: `true`).
+
+<span class="md-heading">## How it Works</span>
+
+The extension uses VS Code&amp;#39;s `TextEditorDecorationType` API to apply styles (background color, simulated text-shadow glow) to ranges of text corresponding to detected LEEWAY regions.
+
+For animations, if enabled, the extension periodically updates the decoration styles using `setInterval` to create a visual change over time.
+
+When using the optional `styles.css` with the Custom CSS Loader, the extension might add specific classes or markers, allowing the injected CSS to apply more fluid, hardware-accelerated animations directly to the editor&amp;#39;s rendered DOM elements.
+
+<span class="md-heading">## Contributing</span>
+... (Standard contribution guidelines section if applicable) ...
+
+<span class="md-heading">## License</span>
+... (Standard license section) ...
+</code></pre>
+                </div>
+            </section>
+            
+            <section id="resources-examples" class="page-section">
+                <h1 class="section-title">💡 Resource: Code Examples</h1>
+                <div class="doc-content">
+                    <h2>💡 Code Examples (In-document)</h2>
+                    <p>Throughout this documentation, various sections include embedded code snippets demonstrating LEEWAY principles in action. These serve as practical examples of how to structure HTML, CSS, and JavaScript/PyScript within the single-file paradigm, using Regions, Semantic Tags, and adhering to standards like Logging and Error Handling.</p>
+                    <p>You can review these examples directly within their relevant documentation sections (e.g., the MCP-Search code, Logging Utility code, In-Code Documentation examples). Look for the code blocks with syntax highlighting.</p>
+                     <div class="visual-placeholder" data-type="visual" data-description="Visual: Screenshot showing various embedded code examples with highlighting.">Visual: Screenshot of embedded code examples.</div>
+                </div>
+            </section>
+
+            <section id="resources-templates" class="page-section">
+                <h1 class="section-title">📄 Resource: Templates (Conceptual)</h1>
+                <div class="doc-content">
+                     <h2>📄 Templates (Conceptual)</h2>
+                     <p>While not included as executable code within this single documentation file, the LEEWAY Standard includes conceptual templates that provide starting points for new applications. These templates embody the core structural principles, including placeholder Regions for common components (Head, Body, Sidebar, Main Content, Footers, Core logic, MCPs), basic CSS structure, and initial script tags.</p>
+                     <p>Developers can use these templates as the foundation for their projects, expanding upon the predefined structure while adhering to the standard. A typical template would include the basic HTML boilerplate, empty style and script regions with LEEWAY comments and IDs, and a basic layout structure.</p>
+                     <div class="visual-placeholder" data-type="visual" data-description="Visual: Schematic showing the structure of a LEEWAY template (nested regions).">Visual: Schematic of a LEEWAY Template Structure.</div>
+                </div>
+            </section>
+            
+            <section id="resources-faq" class="page-section">
+                <h1 class="section-title">❓ Frequently Asked Questions (FAQ)</h1>
+                <div class="doc-content">
+                    <h2>❓ FAQ (Conceptual)</h2>
+                     <p>A comprehensive Frequently Asked Questions section would address common questions about the LEEWAY Standard, such as:</p>
+                     <ul>
+                         <li>Why a single HTML file?</li>
+                         <li>How does it handle large applications? (Referencing Optimization)</li>
+                         <li>How is security managed? (Referencing CSP, Sandboxing via Handlers)</li>
+                         <li>How does it compare to traditional frameworks (React, Vue, Angular)?</li>
+                         <li>What tools are needed for development? (Referencing VS Code Extension, Handlers)</li>
+                         <li>Can I use libraries? (Referencing CSP)</li>
+                         <li>How does AI interact with the codebase? (Referencing Semantic Tagging, Logging, Tools)</li>
+                     </ul>
+                     <p>This section would provide quick answers and point users to the relevant detailed sections of the documentation.</p>
+
+                    <div class="faq-item card mt-4">
+                        <h3 class="content-heading">1. Why a single HTML file? Isn&apos;t that outdated or bad for performance?</h3>
+                        <p>LEEWAY leverages a single file for ultimate portability, zero build steps, and atomic versioning. Performance is addressed through modern browser features like HTTP/2, server-side compression (Brotli/Gzip), Service Worker caching for instant repeat loads, and internal lazy-loading of non-critical Regions. The goal is to combine simplicity with intelligent optimization. Large initial downloads are mitigated by compression, and subsequent loads are often from cache. The key is that *within* the single file, modularity and clear structure are rigorously enforced.</p>
+                    </div>
+                    <div class="faq-item card mt-4">
+                        <h3 class="content-heading">2. How does LEEWAY handle large applications or team collaboration with a single file?</h3>
+                        <p><strong>Modularization</strong> (Regions) and <strong>Colorization</strong> are paramount. They make the single file navigable and understandable. For team collaboration, standard version control (like Git) works perfectly. Since the file is text-based, merge conflicts are handled like any other code file. The clear structure of Regions helps teams work on different parts simultaneously with fewer conflicts than in a sprawling, conventionally structured project. The embedded In-Code Documentation within each Region also clarifies ownership and purpose. Large applications are managed by ensuring each Region is self-contained and interacts with others through well-defined interfaces (e.g., MCP functions).</p>
+                    </div>
+                    <div class="faq-item card mt-4">
+                        <h3 class="content-heading">3. How is security managed, especially with embedded scripts and potential for external tool interaction?</h3>
+                        <p>Security is multi-faceted in LEEWAY:</p>
+                        <ul>
+                            <li><strong>Content Security Policy (CSP):</strong> A strict CSP header is defined in the &lt;head&gt; to whitelist trusted sources for any external resources.</li>
+                            <li><strong>Sandboxed Tool Execution:</strong> External tool handlers are executed in separate, sandboxed processes. The <code>leeway-protocol.json</code> explicitly defines permissible commands.</li>
+                            <li><strong>Input Sanitization:</strong> All user inputs are sanitized.</li>
+                            <li><strong>No Server-Side Vulnerabilities (for core app):</strong> Core application logic runs client-side.</li>
+                            <li><strong>HTTPS Enforcement.</strong></li>
+                        </ul>
+                    </div>
+                    <div class="faq-item card mt-4">
+                        <h3 class="content-heading">4. How does LEEWAY integrate with AI like Gemini 2.5 Pro for Agent Lee?</h3>
+                        <p>LEEWAY is designed to be AI-ready. For Agent Lee to leverage a powerful model like Gemini 2.5 Pro: MCP-Communication sends queries to a secure backend/cloud function where the Gemini API is called. Structured Data (Semantic Tagging, JSON-LD) provides context. The Tool Protocol defines desktop actions. Local Processing (MCP-Processing) could host on-device models in the future.</p>
+                    </div>
+                    <div class="faq-item card mt-4">
+                        <h3 class="content-heading">5. What if I need to use an external JavaScript library not on a CDN?</h3>
+                        <p>The primary LEEWAY principle is self-containment or reliance on trusted CDNs whitelisted by a Content Security Policy (CSP). If an essential library is small and has no further external dependencies, it could theoretically be embedded directly within a &lt;script&gt; Region. However, for larger libraries or those with complex dependencies, the recommended approach is: Seek a CDN version first; if unavailable, host the library on a trusted, controlled server/domain that you can whitelist in your CSP; as a last resort for development or very specific internal tools, and if the library is truly self-contained, embed it. This increases the main file size and should be done judiciously.</p>
+                    </div>
+                </div>
+            </section>
+
+    </main>
+    <!-- 🔵 END: UI - Main Content Area -->
+
+    <!-- 🟣 START: MCP - Agent Lee UI -->
+    <div id="agent-lee-interactive-container" class="agent-lee-leeway-card">
+        <div id="app-root-agentlee">
+            <!-- Agent Lee React App will mount here -->
+        </div>
+    </div>
+    <!-- 🟣 END: MCP - Agent Lee UI -->
+
+    <!-- 🟡 START: THEME - Page Utility Scripts -->
+    <script>
+        // Theme Toggle Logic
+        const themeToggleBtnStandard = document.getElementById('theme-toggle');
+        const docHtmlElStandard = document.documentElement;
+        
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                docHtmlElStandard.classList.add('light-mode');
+                docHtmlElStandard.classList.remove('dark');
+                themeToggleBtnStandard.textContent = '🌙';
+            } else {
+                docHtmlElStandard.classList.add('dark');
+                docHtmlElStandard.classList.remove('light-mode');
+                themeToggleBtnStandard.textContent = '☀️';
+            }
+            if (window.AgentLeeReact && typeof window.AgentLeeReact.setTheme === 'function') {
+                window.AgentLeeReact.setTheme(theme);
+            }
+        }
+
+        const savedThemeStandard = localStorage.getItem('leewayTheme');
+        applyTheme(savedThemeStandard === 'light' ? 'light' : 'dark'); 
+
+        themeToggleBtnStandard.addEventListener('click', () => {
+            const isCurrentlyLight = docHtmlElStandard.classList.contains('light-mode');
+            const newTheme = isCurrentlyLight ? 'dark' : 'light';
+            localStorage.setItem('leewayTheme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        // Smooth Scroll and Active Link for Sidebar
+        function navigateToSection(sectionId, clickedLink = null) {
+            document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none'); 
+            const targetElement = document.getElementById(sectionId);
+            
+            if (targetElement) {
+                targetElement.style.display = 'block';
+                targetElement.classList.add('active');
+
+                const offset = document.querySelector('nav.main-nav').offsetHeight + 20; 
+                const mainContentEl = document.querySelector('main.leeway-main-content');
+                const scrollTopVal = targetElement.offsetTop - mainContentEl.offsetTop - offset + mainContentEl.scrollTop;
+
+                mainContentEl.scrollTo({ top: scrollTopVal, behavior: 'smooth' });
+                if (history.pushState) { history.pushState(null, null, '#' + sectionId); } 
+                else { window.location.hash = '#' + sectionId; }
+                
+                document.querySelectorAll('.leeway-sidebar .nav-link').forEach(link => link.classList.remove('active'));
+                if (clickedLink) { clickedLink.classList.add('active'); } 
+                else {
+                    const activeLink = document.querySelector(`.leeway-sidebar .nav-link[href="#${sectionId}"]`);
+                    if (activeLink) activeLink.classList.add('active');
+                }
+            } else {
+                console.warn("Target section not found:", sectionId);
+                document.getElementById('introduction-section').style.display = 'block';
+            }
+        }
+        
+        function updateActiveSidebarLinkForCurrentView() {
+            let currentSectionId = "introduction-section"; 
+            const sections = document.querySelectorAll('.page-section');
+            const mainContentEl = document.querySelector('main.leeway-main-content');
+            const fixedHeaderHeight = document.querySelector('nav.main-nav').offsetHeight;
+            const threshold = mainContentEl.scrollTop + fixedHeaderHeight + 40;
+
+            for (let section of sections) {
+                if (section.offsetTop <= threshold && section.style.display === 'block') { // Only consider visible sections
+                    currentSectionId = section.id;
+                }
+            }
+            // If multiple sections are within threshold (e.g. very short sections), this picks the last one.
+            // For more accuracy on which one is "most" in view, IntersectionObserver is better.
+            
+            document.querySelectorAll('.leeway-sidebar .nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + currentSectionId) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        let scrollTimeout;
+        document.querySelector('main.leeway-main-content').addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(updateActiveSidebarLinkForCurrentView, 150);
+        });
+        
+        window.addEventListener('load', () => {
+            let initialSection = window.location.hash ? window.location.hash.substring(1) : 'introduction-section';
+            if(!document.getElementById(initialSection)) initialSection = 'introduction-section'; 
+            
+            navigateToSection(initialSection); 
+            
+            setTimeout(() => {
+                const agentCard = document.getElementById('agent-lee-interactive-container');
+                if(agentCard) agentCard.classList.add('visible');
+            }, 1000);
+
+            if (window.MCP_Memory_Documentation) MCP_Memory_Documentation.init();
+            if (window.MCP_Search_Documentation) {
+                window.MCP_Search_Documentation.init().then(() => {
+                    if(typeof window.MCP_Search_Documentation.indexVisibleContent === 'function') {
+                         window.MCP_Search_Documentation.indexVisibleContent();
+                    }
+                }).catch(console.error);
+            }
+            if (window.MCP_Scheduling_Documentation) MCP_Scheduling_Documentation.init().catch(console.error);
+            if (window.logEvent_Documentation) console.log("Conceptual logEvent_Documentation ready.");
+
+            const searchInput = document.getElementById('doc-search-input');
+            const searchResultsDiv = document.getElementById('doc-search-results');
+            if (searchInput && searchResultsDiv && window.MCP_Search_Documentation) {
+                searchInput.addEventListener('input', () => {
+                    const query = searchInput.value;
+                    if (query.length > 2) {
+                        const results = window.MCP_Search_Documentation.search(query);
+                        displayDocSearchResults(results, searchResultsDiv);
+                    } else {
+                        searchResultsDiv.style.display = 'none';
+                        searchResultsDiv.innerHTML = '';
+                    }
+                });
+            }
+            
+            // Add line numbers to pre blocks
+            document.querySelectorAll('pre code').forEach(codeBlock => {
+                const lines = codeBlock.innerHTML.split('\n');
+                // Remove an empty last line if it exists due to split
+                if (lines.length > 0 && lines[lines.length - 1].trim() === '') {
+                    lines.pop();
+                }
+                const numberedLines = lines.map((line, index) => {
+                    // Wrap each line in a span for individual styling if needed, and for the counter
+                    return `<span class="leeway-code-line-num" data-line-number="${index + 1}"></span>${line}`;
+                });
+                codeBlock.innerHTML = numberedLines.join('\n');
+            });
+             // Style for the line numbers themselves, appended to the pre::before gutter
+            const styleSheet = document.createElement("style");
+            let lineNumCss = "";
+            for(let i=1; i<=200; i++) { // Assume max 200 lines for this simple CSS demo, JS would be better for more
+                lineNumCss += `pre[data-line-count="${i}"]::before { content: '${Array.from({length: i}, (_,j)=>j+1).join('\\A')}'; white-space: pre; text-align: right; } \n`;
+            }
+            // A simpler approach for the ::before pseudo-element on the code block might be needed
+            // The current PRE::before styles the gutter. Adding numbers per line purely with CSS without line spans is hard.
+            // The .leeway-code-line-num span approach is better.
+            document.querySelectorAll('pre span.leeway-code-line-num').forEach(span => {
+                 // The data-line-number is already set. CSS will style this.
+            });
+            // Add CSS for the .leeway-code-line-num
+            const lineNumStyle = document.createElement('style');
+            lineNumStyle.textContent = `
+                pre span.leeway-code-line-num::before {
+                    content: attr(data-line-number);
+                    position: absolute;
+                    left: 10px; /* Position within the pre::before gutter */
+                    width: 30px; /* Width of numbers */
+                    text-align: right;
+                    color: var(--sidebar-link-color);
+                    -webkit-user-select: none; user-select: none; /* Non-selectable */
+                }
+            `;
+            document.head.appendChild(lineNumStyle);
+
+
+        });
+
+        window.addEventListener('hashchange', () => { 
+            let hashSection = window.location.hash ? window.location.hash.substring(1) : 'introduction-section';
+            if(!document.getElementById(hashSection)) hashSection = 'introduction-section';
+            navigateToSection(hashSection);
+        });
+
+        function displayDocSearchResults(results, container) {
+             container.innerHTML = ''; 
+             if (results.length === 0) {
+                 container.textContent = `No results found.`;
+                 container.style.display = 'block';
+                 return;
+             }
+             const resultList = document.createElement('ul');
+             results.forEach(item => {
+                 const listItem = document.createElement('li');
+                 const link = document.createElement('a');
+                 link.href = `#${item.id}`; 
+                 link.textContent = item.title || `Section: ${item.id}`;
+                 link.onclick = (e) => { e.preventDefault(); navigateToSection(item.id); };
+
+                 const snippet = document.createElement('p');
+                 const textPreview = item.text ? item.text.substring(0, 200) + (item.text.length > 200 ? '...' : '') : 'Content preview unavailable.';
+                 snippet.textContent = textPreview;
+                 
+                 listItem.appendChild(link);
+                 listItem.appendChild(snippet);
+                 resultList.appendChild(listItem);
+             });
+             container.appendChild(resultList);
+             container.style.display = 'block';
+         }
+
+    </script>
+    <!-- 🟡 END: THEME - Page Utility Scripts -->
+
+    <!-- 🟣 START: MCP - Conceptual Modules for Documentation Page -->
+    <script>
+        if (typeof MCP_Memory_Documentation === 'undefined') {
+            window.MCP_Memory_Documentation = (() => {
+                const store = {};
+                async function recall(key) { console.log(`🟣 MCP-Memory (Doc): Conceptual recall('${key}')`); return Promise.resolve(store[key] || null); }
+                async function storeData(key, value) { console.log(`🟣 MCP-Memory (Doc): Conceptual store('${key}', ...)`); store[key] = value; return Promise.resolve(true); }
+                async function storeLogEntry(logEntry) { console.log("🟣 MCP-Memory (Doc): Conceptual storeLogEntry", logEntry); return true; } // For logging
+                return { init: async () => console.log("🟣 MCP-Memory (Doc): Conceptual Init"), recall, store: storeData, storeLogEntry };
+            })();
+        }
+        if (typeof logEvent_Documentation === 'undefined') {
+            window.logEvent_Documentation = async (type, description, details = {}, regionId = 'unknown') => {
+              console.log(`🔴 LOG (Doc Page) [${type}] [${regionId}]: ${description}`, details);
+              if (MCP_Memory_Documentation && typeof MCP_Memory_Documentation.storeLogEntry === 'function') {
+                 // MCP_Memory_Documentation.storeLogEntry({ timestamp: Date.now(), type, regionId, description, details }); // Conceptual store
+              }
+            };
+        }
+    </script>
+    <!-- 🟣 END: MCP - Conceptual Modules for Documentation Page -->
+
+    <!-- 🟣 START: MCP - Agent Lee UI (React) -->
+    <script type="text/babel">
+      class AgentLee {
+          constructor() {
+              this.messages = [{type: 'agent', content: "Greetings! I am Agent Lee, your interactive guide through the LEEWAY Standard. Ask me anything about the documentation!", timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}];
+              this.voiceActive = false;
+              this.currentTheme = document.documentElement.classList.contains('light-mode') ? 'light' : 'dark';
+          }
+
+          async processMessage(userInput) {
+              let response = "I'm processing that. ";
+              const lowerInput = userInput.toLowerCase();
+
+              if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
+                  response = "Hello there! How can I help you navigate the LEEWAY documentation?";
+              } else if (lowerInput.includes("leeway standard") || lowerInput.includes("what is leeway")) {
+                  response = "The LEEWAY Standard is a comprehensive framework for building modular, colorized, and AI-ready web applications in a single HTML file. You can find more in the <a href=\"#overview-section\" onclick=\"event.preventDefault(); navigateToSection('overview-section');\">Overview section</a>.";
+              } else if (lowerInput.includes("mcp components") || lowerInput.includes("mcp")) {
+                  response = "MCP stands for Memory, Communication, and Processing. These are standardized components for handling specific functions. More details are in the <a href=\"#mcp-components-intro\" onclick=\"event.preventDefault(); navigateToSection('mcp-components-intro');\">MCP Overview</a>.";
+              } else if (lowerInput.includes("search for") || lowerInput.includes("find")) {
+                  const query = userInput.replace(/search for|find/i, "").trim();
+                   if (window.MCP_Search_Documentation && typeof window.MCP_Search_Documentation.search === 'function' && query) {
+                      const searchResults = window.MCP_Search_Documentation.search(query);
+                      if (searchResults.length > 0) {
+                          response = `I found these sections for "${query}":<ul>`;
+                          searchResults.slice(0,3).forEach(res => {
+                              response += `<li><a href="#${res.id}" onclick="event.preventDefault(); navigateToSection('${res.id}');">${res.title || res.id}</a></li>`;
+                          });
+                          response += "</ul>You can click these links or ask me to elaborate.";
+                      } else { response = `I couldn't find specific results for "${query}". Try broadening your search or checking the main search bar.`; }
+                  } else { response = `I can't perform that search right now. Try the main search bar above.`; }
+              } else if (lowerInput.includes("thank you") || lowerInput.includes("thanks")) {
+                  response = "You're welcome! Let me know if there's anything else.";
+              } else {
+                  if (window.MCP_Search_Documentation && typeof window.MCP_Search_Documentation.search === 'function') {
+                      const searchResults = window.MCP_Search_Documentation.search(userInput);
+                      if (searchResults.length > 0) {
+                          response = `I found some potentially relevant sections for "${userInput}":<ul>`;
+                          searchResults.slice(0,3).forEach(res => { 
+                              response += `<li><a href="#${res.id}" onclick="event.preventDefault(); navigateToSection('${res.id}');">${res.title || res.id}</a></li>`;
+                          });
+                          response += "</ul>You can click these links or ask me to elaborate.";
+                      } else { response = `I'm still learning about "${userInput}". Try rephrasing or checking the sidebar.`;}
+                  } else { response = `I'm sorry, I couldn't process that specific query about "${userInput}".`; }
+              }
+              await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 400));
+              return response;
+          }
+          speak(text) { /* ... as before ... */ }
+          setTheme(theme) { this.currentTheme = theme; console.log(`Agent Lee theme set to: ${theme}`); }
+      }
+      window.AgentLee = AgentLee;
+
+      const AgentLeeApp = () => {
+            const [messages, setMessages] = React.useState([]);
+            const [inputValue, setInputValue] = React.useState("");
+            const agentInstance = React.useRef(null);
+            const messagesEndRef = React.useRef(null);
+            const [currentTheme, setCurrentTheme] = React.useState(document.documentElement.classList.contains('light-mode') ? 'light' : 'dark');
+
+            React.useEffect(() => {
+                if (!agentInstance.current) {
+                    agentInstance.current = new AgentLee(); 
+                    setMessages(agentInstance.current.messages);
+                    agentInstance.current.setTheme(currentTheme);
+                }
+                window.AgentLeeReact = { 
+                    setTheme: (theme) => {
+                        setCurrentTheme(theme); 
+                        if (agentInstance.current) agentInstance.current.setTheme(theme);
+                    }
+                };
+            }, [currentTheme]); // Added currentTheme to dependencies
+            
+            React.useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+            const handleSendMessage = async () => {
+                if (inputValue.trim() === "") return;
+                const userMessageText = inputValue; setInputValue(""); 
+                const newUserMessage = {type: 'user', content: userMessageText, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })};
+                setMessages(prev => [...prev, newUserMessage]);
+                
+                if (agentInstance.current) {
+                    const thinkingMessage = {type: 'agent', content: "Thinking...", timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), isThinking: true};
+                    setMessages(prev => [...prev, thinkingMessage]);
+                    const responseContent = await agentInstance.current.processMessage(userMessageText); 
+                    setMessages(prev => prev.map(m => m.isThinking ? {...m, content: responseContent, isThinking: false, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} : m));
+                    if (agentInstance.current.voiceActive) agentInstance.current.speak(responseContent);
+                }
+            };
+            
+            return (
+                <div className="app-container" style={{height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card-bg-color)', color: 'var(--text-color)'}}>
+                    <header className="app-header">
+                        <div className="header-brand">
+                            <img src="C:/Users/Agent Lee/.vscode/.leeway/agentlee.png" alt="Agent Lee" className="agent-avatar" />
+                            <div>
+                                <h1 className="text-sm font-bold" style={{color: currentTheme === 'light' ? '#0A192F' /* Darker text for light header */ : 'white'}}>Agent Lee</h1>
+                                <p className="text-xs" style={{color: currentTheme === 'light' ? 'var(--sidebar-link-color)' : 'var(--sidebar-link-color)'}}>Docs Navigator</p>
+                            </div>
+                        </div>
+                    </header>
+                    <main className="app-main"> 
+                        <div className="conversation-panel">
+                            <div className="messages-container">
+                                {messages.map((msg, index) => (
+                                    <div key={index} className={`message ${msg.type}-message`}>
+                                        <div className="message-header">
+                                            <strong>{msg.type === 'agent' ? 'Agent Lee' : 'You'}</strong>
+                                            <span className="ml-2 text-xs opacity-70">{msg.timestamp}</span>
+                                        </div>
+                                        <div className="message-content" 
+                                             dangerouslySetInnerHTML={{ __html: msg.content ? msg.content.replace(/\n/g, '<br/>') : '...' }}>
+                                        </div>
+                                    </div>
+                                ))}
+                                <div ref={messagesEndRef} />
+                            </div>
+                        </div>
+                         <footer className="input-panel">
+                            <div className="input-container">
+                                <textarea
+                                    className="message-input"
+                                    placeholder="Ask Agent Lee..."
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
+                                    rows="1"
+                                ></textarea>
+                                <button className="btn-primary" onClick={handleSendMessage} title="Send Message">
+                                    <i className="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </footer>
+                    </main>
+                </div>
+            );
+        };
+
+        const agentLeeContainerLeeway = document.getElementById('app-root-agentlee');
+        if (agentLeeContainerLeeway) {
+             ReactDOM.render(React.createElement(AgentLeeApp), agentLeeContainerLeeway);
+        } else {
+            console.error("Agent Lee container for Leeway Docs (#app-root-agentlee) not found!");
+        }
+    </script>
+    <!-- 🟣 END: MCP - Agent Lee UI (React) -->
+
+</body>
+</html>
+```
+524.5s
